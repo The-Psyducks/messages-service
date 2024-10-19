@@ -1,10 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"messages/src/router"
 )
+
+const PORT = ":8080"
 
 func main() {
 
-	fmt.Println("Start working here ;)")
+	router := router.NewRouter()
+	log.Println("Starting at port ", PORT)
+	router.Run(PORT)
+
 }
