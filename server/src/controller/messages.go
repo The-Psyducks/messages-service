@@ -15,5 +15,5 @@ func NewMessageController(messageService *service.MessageService) *MessageContro
 }
 
 func (mc *MessageController) SendMessage(ctx *gin.Context) {
-	mc.MessageService.SendMessage()
+	mc.MessageService.SendMessage("<a pimp named slickback id>", "<fito id>", "https://www.youtube.com/watch?v=RZ1eILLVw74")
 }

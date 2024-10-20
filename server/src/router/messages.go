@@ -16,10 +16,8 @@ func NewRouter() (*gin.Engine, error) {
 
 	r := gin.Default()
 
-	ms, err := service.NewMessageService()
-	if err != nil {
-		return nil, err
-	}
+	ms := service.NewMessageService()
+
 	mc := controller.NewMessageController(ms)
 
 	r.POST("/messages", mc.SendMessage)
