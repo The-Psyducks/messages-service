@@ -10,21 +10,55 @@ import (
 )
 
 type MessageService struct {
-	App *firebase.App
 }
 
 func NewMessageService() (*MessageService, error) {
-	opt := option.WithCredentialsFile("path/to/serviceAccountKey.json")
-	app, err := firebase.NewApp(context.Background(), nil, opt)
-	if err != nil {
-		return nil, fmt.Errorf("error initializing firebase app: %v", err)
+
+	return &MessageService{}, nil
+}
+
+func (ms *MessageService) SendMessage() error {
+
+	ctx := context.Background() //firebase context
+	conf := &firebase.Config{
+		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
 	}
 
-	return &MessageService{App: app}, nil
+	// Fetch the service account key JSON file contents
+	opt := option.WithCredentialsFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json")
+
+	// Initialize the app with a service account, granting admin privileges
+	app, err := firebase.NewApp(ctx, conf, opt)
+	if err != nil {
+		log.Fatalln("Error initializing firebase app:", err)
+	}
+
+	client, err := app.Database(ctx)
+	if err != nil {
+		log.Fatalln("Error initializing database client:", err)
+	}
+
+	// As an admin, the app has access to read and write all data, regradless of Security Rules
+	ref := client.NewRef("ejemplo")
+	var data map[string]interface{}
+	if err := ref.Get(ctx, &data); err != nil {
+		log.Fatalln("Error reading from database:", err)
+	}
+	fmt.Println("data retrieved: ", data)
+
+	dict := map[string]string{"clave": "valor"}
+
+	if _, err := ref.Push(ctx, dict); err != nil {
+		log.Fatalln("Error pushing message: ", err)
+	}
+
+	if err := ref.Get(ctx, &data); err != nil {
+		log.Fatalln("Error reading from database:", err)
+	}
+	fmt.Println("data retrieved after inserting into db: ", data)
+
+	return nil
+
 }
 
-func (ms *MessageService) SendMessage() {
-
-	log.Println("Sending Message: Not yet implemented")
-
-}
+//
