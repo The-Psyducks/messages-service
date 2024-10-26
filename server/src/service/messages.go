@@ -1,7 +1,8 @@
 package service
 
 import (
-	"errors"
+	"log"
+	"messages/src/model/errors"
 	"messages/src/repository"
 	usersConnector "messages/src/user-connector"
 )
@@ -13,28 +14,30 @@ func NewMessageService() *MessageService {
 	return &MessageService{}
 }
 
-func (ms *MessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) error {
+func (ms *MessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) *errors.MessageError {
 	//validar que el remitente exista
 	senderExists, err := usersConnector.CheckUserExists(senderId, authHeader)
 	if err != nil {
-		return err
+		log.Printf("error validating user: %v\n", err)
+		return errors.ExternalServiceError("error validating user: " + err.Error())
 	}
 
 	if !senderExists {
-		return errors.New("sender does not exist")
+		return errors.ValidationError("sender does not exist")
 	}
 
 	receiverExists, err := usersConnector.CheckUserExists(receiverId, authHeader)
 	if err != nil {
-		return err
+		log.Printf("error validating user: %v\n", err)
+		return errors.ExternalServiceError("error validating user: " + err.Error())
 	}
 	if !receiverExists {
-		return errors.New("receiver does not exist")
+		return errors.ValidationError("receiver does not exist")
 	}
 
 	//validar que el destinatario exista
 	if err := repository.SendMessage(senderId, receiverId, content); err != nil {
-		return err
+		return errors.InternalServerError("error sending message" + err.Error())
 	}
 	return nil
 }
