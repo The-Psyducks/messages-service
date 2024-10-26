@@ -2,7 +2,6 @@ package router
 
 import (
 	"log"
-
 	"messages/src/controller"
 	"messages/src/service"
 
@@ -15,9 +14,7 @@ func NewRouter() (*gin.Engine, error) {
 	log.Println("Creating router...")
 
 	r := gin.Default()
-
 	ms := service.NewMessageService()
-
 	mc := controller.NewMessageController(ms)
 
 	r.POST("/messages", mc.SendMessage)

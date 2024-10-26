@@ -1,28 +1,20 @@
-package service
+package repository
 
 import (
 	"context"
-	"log"
-	"time"
-
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
+	"log"
+	"os"
+	"time"
 )
 
-type MessageService struct {
-}
-
-func NewMessageService() *MessageService {
-	return &MessageService{}
-}
-
-func (ms *MessageService) SendMessage(senderId string, receiverId string, content string) error {
-
+func SendMessage(senderId string, receiverId string, content string) error {
 	client, ctx := createFirebaseDbClient()
 
-	resourceRef := createMessage(senderId, receiverId, client)
+	resourceRef := createMessageRef(senderId, receiverId, client)
 
 	// if err := ref.Get(ctx, &data); err != nil {
 	// 	log.Fatalln("Error reading from database:", err)
@@ -30,14 +22,15 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	// fmt.Println("data retrieved: ", data)
 
 	msg := map[string]string{
+		"id":        uuid.New().String(),
 		"from":      senderId,
 		"to":        receiverId,
 		"content":   content,
 		"timestamp": time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	if err := resourceRef.Set(ctx, msg); err != nil {
-		log.Fatalln("Error pushing message: ", err)
+	if _, err := resourceRef.Push(ctx, msg); err != nil {
+		return err
 	}
 
 	/*var data map[string]interface{}
@@ -50,19 +43,18 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	return nil
 }
 
-func createMessage(senderId string, receiverId string, client *db.Client) *db.Ref {
+func createMessageRef(senderId string, receiverId string, client *db.Client) *db.Ref {
 	firstUser, secondUser := func(a, b string) (string, string) {
-
 		if a < b {
 			return a, b
 		}
 		return b, a
-
 	}(senderId, receiverId)
-
-	newUUID := uuid.New().String()
-
-	ref := client.NewRef("poc/msg-" + firstUser + "-" + secondUser + "/" + newUUID)
+	uri := "dm-" + firstUser + "-" + secondUser
+	if os.Getenv("ENVIRONMENT") == "test" {
+		uri = "test/" + uri
+	}
+	ref := client.NewRef(uri)
 	return ref
 }
 
@@ -85,5 +77,3 @@ func createFirebaseDbClient() (*db.Client, context.Context) {
 	}
 	return client, ctx
 }
-
-//

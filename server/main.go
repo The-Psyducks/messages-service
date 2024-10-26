@@ -9,12 +9,14 @@ const PORT = ":8080"
 
 func main() {
 
-	router, err := router.NewRouter()
+	r, err := router.NewRouter()
 	if err != nil {
 		log.Fatalln("Error creating router: ", err)
 	}
 
 	log.Println("Starting at port ", PORT)
-	router.Run(PORT)
+	if err = r.Run(PORT); err != nil {
+		log.Fatalln("Error starting server: ", err)
+	}
 
 }

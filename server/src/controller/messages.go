@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"messages/src/model"
+	"messages/src/model/errors"
 	"messages/src/service"
 
 	"github.com/gin-gonic/gin"
@@ -15,5 +17,16 @@ func NewMessageController(messageService *service.MessageService) *MessageContro
 }
 
 func (mc *MessageController) SendMessage(ctx *gin.Context) {
-	mc.MessageService.SendMessage("<a pimp named slickback id>", "<fito id>", "https://www.youtube.com/watch?v=RZ1eILLVw74")
+
+	authHeader := ctx.GetHeader("Authorization")
+
+	var req model.MessageRequest
+	if err := ctx.BindJSON(&req); err != nil {
+		errors.NewErrorMessage(ctx, err)
+		return
+	}
+
+	if err := mc.MessageService.SendMessage(req.SenderId, req.ReceiverId, req.Content, authHeader); err != nil {
+		errors.NewErrorMessage(ctx, err)
+	}
 }
