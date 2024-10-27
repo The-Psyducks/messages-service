@@ -37,6 +37,6 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 }
 
 func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {
-	data := model.MessageDeliveredResponse{ref}
+	data := model.MessageDeliveredResponse{ChatReference: ref}
 	ctx.JSON(http.StatusOK, data)
 }
