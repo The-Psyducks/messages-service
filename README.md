@@ -29,8 +29,3 @@ para correr los tests:
 docker compose up tests
 ```
 
-
-Para cambiar el entorno en el que se encuentra la aplicacion, se debe cambiar la variable de entorno ENVIRONMENT en el archivo `server/.env`
-
-
-Ojo! que sacar los .env del repo
