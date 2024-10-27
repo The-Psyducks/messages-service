@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="70a0fba9-d5ff-4da0-be79-c484810eadf1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/server/src/model/responses.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/controller/messages.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/controller/messages.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/controller/messages_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/controller/messages_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/repository/messages.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/repository/messages.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/service/messages.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/service/messages.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file:///usr/local/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2nwnd7G6CHeNpPCeMuXqQZkg2xA" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build messages.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build server.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test messages/src/controller.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test messages/src/service.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test server.executor&quot;: &quot;Coverage&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;prueba-firebase&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/joaquinpandolfi/Escritorio/facultad/users-service&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="GoExtractInterfaceDialog.RECENT_KEY">
+      <recent name="$PROJECT_DIR$/server/src/repository" />
+      <recent name="$PROJECT_DIR$/server/src/service" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/server/src/" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build messages">
+    <configuration name="go build messages" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="messages-service" />
+      <working_directory value="$PROJECT_DIR$/server" />
+      <envs>
+        <env name="ENVIRONMENT" value="test" />
+        <env name="MOCK_USERS_SERVICE" value="false" />
+        <env name="USERS_HOST" value="micro-users-227c2d0df51d.herokuapp.com" />
+        <env name="JWT_SECRET" value="MonkeCrack" />
+      </envs>
+      <kind value="PACKAGE" />
+      <package value="messages" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/server/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test messages/src/controller" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="messages-service" />
+      <working_directory value="$PROJECT_DIR$/server/src/controller" />
+      <root_directory value="$PROJECT_DIR$/server" />
+      <kind value="PACKAGE" />
+      <package value="messages/src/controller" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test server" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="messages-service" />
+      <working_directory value="$PROJECT_DIR$/server" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$/server" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build messages" />
+      <item itemvalue="Go Test.go test messages/src/controller" />
+      <item itemvalue="Go Test.go test server" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build messages" />
+        <item itemvalue="Go Test.go test server" />
+        <item itemvalue="Go Test.go test messages/src/controller" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-5df93f7ad4aa-df9ad98b711f-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.23339.24" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-GO-242.23339.24" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/messages_service$go_test_server.out" NAME="go test server Coverage Results" MODIFIED="1729995189271" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+</project>
