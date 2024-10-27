@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"messages/src/model"
 	"messages/src/model/errors"
 	"messages/src/service"
@@ -26,6 +27,7 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 		errors.SendErrorMessage(ctx, errors.BadRequestError("Error Binding Request: "+err.Error()))
 		return
 	}
+	log.Println("Received Message Request: ", req)
 	ref, err := mc.MessageService.SendMessage(req.SenderId, req.ReceiverId, req.Content, authHeader)
 	if err != nil {
 		errors.SendErrorMessage(ctx, err)

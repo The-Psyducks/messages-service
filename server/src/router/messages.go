@@ -11,14 +11,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter() (*gin.Engine, error) {
+type ConfigurationType int
+
+const (
+	// Using iota to define the enum values
+	MOCK_EXTERNAL ConfigurationType = iota
+	DEFAULT
+)
+
+func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 
 	gin.SetMode(gin.ReleaseMode)
 	log.Println("Creating router...")
 
 	r := gin.Default()
-	db := repository.NewRealTimeDatabase()
-	users := usersConnector.NewUsersConnector()
+	var db repository.RealTimeDatabaseInterface
+	var users usersConnector.ConnectorInterface
+	switch config {
+	case MOCK_EXTERNAL:
+		db = repository.NewMockRealTimeDatabase()
+		users = usersConnector.NewMockConnector()
+		//case DEFAULT:
+		//	db = repository.NewRealTimeDatabase()
+		//	users = usersConnector.NewUsersConnector()
+	default:
+		db = repository.NewRealTimeDatabase()
+		users = usersConnector.NewUsersConnector()
+
+	}
+
 	ms := service.NewMessageService(db, users)
 	mc := controller.NewMessageController(ms)
 
@@ -31,19 +52,3 @@ func NewRouter() (*gin.Engine, error) {
 	return r, nil
 
 }
-
-/*private := r.Engine.Group("/")
-private.Use(middleware.AuthMiddleware())
-{
-	private.GET("/users/:id", userController.GetUserProfileById)
-	private.PUT("/users/profile", userController.ModifyUserProfile)
-
-	private.POST("/users/:id/follow", userController.FollowUser)
-	private.DELETE("/users/:id/follow", userController.UnfollowUser)
-	private.GET("/users/:id/followers", userController.GetFollowers)
-	private.GET("/users/:id/following", userController.GetFollowing)
-
-	private.GET("/users/search", userController.SearchUsers)
-
-	private.GET("/users/all", userController.GetAllUsers)
-}*/

@@ -40,7 +40,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	//validar que el destinatario exista
 	ref, err := ms.db.SendMessage(senderId, receiverId, content)
 	if err != nil {
-		return "", errors.InternalServerError("error sending message" + err.Error())
+		return "", errors.InternalServerError("error sending message: " + err.Error())
 	}
 	return ref, nil
 }

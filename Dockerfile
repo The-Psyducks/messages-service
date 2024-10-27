@@ -15,7 +15,7 @@ RUN go build -o service ./main.go
 # Test stage
 FROM builder AS test-stage
 
-CMD ["go", "test", "-cover", "-coverprofile=coverage/coverage.out", "./tests"]
+CMD ["go", "test", "-cover", "-coverprofile=coverage/coverage.out", "./..."]
 
 # Run stage
 FROM alpine:3.20
