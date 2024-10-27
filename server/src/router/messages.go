@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"messages/src/controller"
+	"messages/src/middleware"
 	"messages/src/service"
 
 	"github.com/gin-gonic/gin"
@@ -17,8 +18,28 @@ func NewRouter() (*gin.Engine, error) {
 	ms := service.NewMessageService()
 	mc := controller.NewMessageController(ms)
 
-	r.POST("/messages", mc.SendMessage)
+	private := r.Group("/")
+	private.Use(middleware.AuthMiddleware())
+	{
+		private.POST("/messages", mc.SendMessage)
+	}
 
 	return r, nil
 
 }
+
+/*private := r.Engine.Group("/")
+private.Use(middleware.AuthMiddleware())
+{
+	private.GET("/users/:id", userController.GetUserProfileById)
+	private.PUT("/users/profile", userController.ModifyUserProfile)
+
+	private.POST("/users/:id/follow", userController.FollowUser)
+	private.DELETE("/users/:id/follow", userController.UnfollowUser)
+	private.GET("/users/:id/followers", userController.GetFollowers)
+	private.GET("/users/:id/following", userController.GetFollowing)
+
+	private.GET("/users/search", userController.SearchUsers)
+
+	private.GET("/users/all", userController.GetAllUsers)
+}*/
