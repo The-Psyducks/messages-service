@@ -4,6 +4,7 @@ import (
 	"log"
 	"messages/src/controller"
 	"messages/src/middleware"
+	"messages/src/repository"
 	"messages/src/service"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,8 @@ func NewRouter() (*gin.Engine, error) {
 	log.Println("Creating router...")
 
 	r := gin.Default()
-	ms := service.NewMessageService()
+	db := repository.NewRealTimeDatabase()
+	ms := service.NewMessageService(db)
 	mc := controller.NewMessageController(ms)
 
 	private := r.Group("/")

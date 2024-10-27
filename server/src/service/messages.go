@@ -8,10 +8,11 @@ import (
 )
 
 type MessageService struct {
+	db repository.RealTimeDatabaseInterface
 }
 
-func NewMessageService() *MessageService {
-	return &MessageService{}
+func NewMessageService(db repository.RealTimeDatabaseInterface) *MessageService {
+	return &MessageService{db}
 }
 
 func (ms *MessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) *errors.MessageError {
@@ -36,8 +37,12 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	}
 
 	//validar que el destinatario exista
-	if err := repository.SendMessage(senderId, receiverId, content); err != nil {
+	if err := ms.db.SendMessage(senderId, receiverId, content); err != nil {
 		return errors.InternalServerError("error sending message" + err.Error())
 	}
 	return nil
+}
+
+type MessageServiceInterface interface {
+	SendMessage(senderId string, receiverId string, content string, authHeader string) *errors.MessageError
 }

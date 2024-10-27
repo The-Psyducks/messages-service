@@ -11,10 +11,17 @@ import (
 	"time"
 )
 
-func SendMessage(senderId string, receiverId string, content string) error {
-	client, ctx := createFirebaseDbClient()
+type RealTimeDatabase struct {
+}
 
-	resourceRef := createMessageRef(senderId, receiverId, client)
+func NewRealTimeDatabase() *RealTimeDatabase {
+	return &RealTimeDatabase{}
+}
+
+func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) error {
+	client, ctx := db.createFirebaseDbClient()
+
+	resourceRef := db.createMessageRef(senderId, receiverId, client)
 
 	// if err := ref.Get(ctx, &data); err != nil {
 	// 	log.Fatalln("Error reading from database:", err)
@@ -43,7 +50,7 @@ func SendMessage(senderId string, receiverId string, content string) error {
 	return nil
 }
 
-func createMessageRef(senderId string, receiverId string, client *db.Client) *db.Ref {
+func (db *RealTimeDatabase) createMessageRef(senderId string, receiverId string, client *db.Client) *db.Ref {
 	firstUser, secondUser := func(a, b string) (string, string) {
 		if a < b {
 			return a, b
@@ -58,7 +65,7 @@ func createMessageRef(senderId string, receiverId string, client *db.Client) *db
 	return ref
 }
 
-func createFirebaseDbClient() (*db.Client, context.Context) {
+func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Context) {
 	ctx := context.Background()
 	conf := &firebase.Config{
 		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
@@ -76,4 +83,8 @@ func createFirebaseDbClient() (*db.Client, context.Context) {
 		log.Fatalln("Error initializing database client:", err)
 	}
 	return client, ctx
+}
+
+type RealTimeDatabaseInterface interface {
+	SendMessage(senderId string, receiverId string, content string) error
 }
