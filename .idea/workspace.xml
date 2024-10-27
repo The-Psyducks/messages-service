@@ -5,11 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70a0fba9-d5ff-4da0-be79-c484810eadf1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/src/model/responses.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/messages-service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/messages-service.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/controller/messages.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/controller/messages.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/controller/messages_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/controller/messages_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/repository/messages.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/repository/messages.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/service/messages.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/service/messages.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/middleware/auth_manager.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/middleware/auth_manager.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/tests/integration/integration_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/tests/integration/integration_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,27 +39,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go Build.go build messages.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build server.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.go test messages/src/controller.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.go test messages/src/service.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.go test server.executor&quot;: &quot;Coverage&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;prueba-firebase&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/joaquinpandolfi/Escritorio/facultad/users-service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build messages.executor": "Run",
+    "Go Build.go build server.executor": "Run",
+    "Go Test.go test messages/src/controller.executor": "Run",
+    "Go Test.go test messages/src/service.executor": "Run",
+    "Go Test.go test server.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "dev",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/home/joaquinpandolfi/Escritorio/facultad/users-service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="GoExtractInterfaceDialog.RECENT_KEY">
       <recent name="$PROJECT_DIR$/server/src/repository" />
@@ -65,7 +69,7 @@
       <recent name="$PROJECT_DIR$/server/src/" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build messages">
+  <component name="RunManager" selected="Go Test.go test server">
     <configuration name="go build messages" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="messages-service" />
       <working_directory value="$PROJECT_DIR$/server" />
@@ -81,21 +85,18 @@
       <filePath value="$PROJECT_DIR$/server/main.go" />
       <method v="2" />
     </configuration>
-    <configuration name="go test messages/src/controller" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="messages-service" />
-      <working_directory value="$PROJECT_DIR$/server/src/controller" />
-      <root_directory value="$PROJECT_DIR$/server" />
-      <kind value="PACKAGE" />
-      <package value="messages/src/controller" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <method v="2" />
-    </configuration>
     <configuration name="go test server" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="messages-service" />
       <working_directory value="$PROJECT_DIR$/server" />
+      <envs>
+        <env name="ENVIRONMENT" value="test" />
+        <env name="JWT_DURATION_HOURS" value="2" />
+        <env name="JWT_SECRET" value="MonkeCrack" />
+        <env name="MOCK_USERS_SERVICE" value="false" />
+        <env name="USERS_HOST" value="micro-users-227c2d0df51d.herokuapp.com" />
+      </envs>
       <kind value="DIRECTORY" />
+      <package value="messages" />
       <directory value="$PROJECT_DIR$/server" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
@@ -103,14 +104,12 @@
     </configuration>
     <list>
       <item itemvalue="Go Build.go build messages" />
-      <item itemvalue="Go Test.go test messages/src/controller" />
       <item itemvalue="Go Test.go test server" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build messages" />
         <item itemvalue="Go Test.go test server" />
-        <item itemvalue="Go Test.go test messages/src/controller" />
+        <item itemvalue="Go Build.go build messages" />
       </list>
     </recent_temporary>
   </component>
@@ -130,6 +129,6 @@
     <settings-migrated>true</settings-migrated>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/messages_service$go_test_server.out" NAME="go test server Coverage Results" MODIFIED="1729995189271" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/messages_service$go_test_server.out" NAME="go test server Coverage Results" MODIFIED="1730054028038" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

@@ -18,8 +18,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			slog.Error("Authorization header is required")
 
 			err := errors.AuthenticationError("Authorization header is required")
-			_ = c.AbortWithError(err.Status, err)
-			c.Next()
+			c.JSON(err.Status, err)
+			c.Abort()
 			return
 		}
 
@@ -32,8 +32,9 @@ func AuthMiddleware() gin.HandlerFunc {
 		if len(bearerToken) != 2 || strings.ToLower(bearerToken[0]) != "bearer" {
 			slog.Error("Invalid authorization header")
 			err := errors.AuthenticationError("Invalid authorization header")
-			_ = c.AbortWithError(err.Status, err)
-			c.Next()
+			c.JSON(err.Status, err)
+			c.Abort()
+
 			return
 		}
 
@@ -43,7 +44,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			slog.Error("Invalid token")
 
 			err := errors.AuthenticationError(fmt.Sprintf("Invalid token: %s", err.Error()))
-			_ = c.AbortWithError(err.Status, err)
+			c.JSON(err.Status, err)
+			c.Abort()
+
 			return
 		}
 

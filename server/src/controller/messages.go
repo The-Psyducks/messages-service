@@ -31,6 +31,7 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 	ref, err := mc.MessageService.SendMessage(req.SenderId, req.ReceiverId, req.Content, authHeader)
 	if err != nil {
 		errors.SendErrorMessage(ctx, err)
+		return
 	}
 	sendMessageDeliveredResponse(ctx, ref)
 }
