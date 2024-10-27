@@ -115,12 +115,12 @@ type FirebaseConfig struct {
 func BuildFirebaseConfig() error {
 	fmt.Println("ENV VAR FOR CONFIG:", os.Getenv("SERVICE_ACCOUNT_PROJECT_ID"))
 	privateKey := os.Getenv("SERVICE_ACCOUNT_PRIVATE_KEY")
-	privateKey = strings.ReplaceAll(privateKey, "\\n", "\n")
+	formatedPrivateKey := strings.ReplaceAll(privateKey, "\\n", "\n")
 	configFile := &FirebaseConfig{
 		Type:                    "service_account",
 		ProjectID:               os.Getenv("SERVICE_ACCOUNT_PROJECT_ID"),
 		PrivateKeyID:            os.Getenv("SERVICE_ACCOUNT_PRIVATE_KEY_ID"),
-		PrivateKey:              privateKey,
+		PrivateKey:              formatedPrivateKey,
 		ClientEmail:             os.Getenv("SERVICE_ACCOUNT_CLIENT_EMAIL"),
 		ClientID:                os.Getenv("SERVICE_ACCOUNT_CLIENT_ID"),
 		AuthURI:                 os.Getenv("SERVICE_ACCOUNT_AUTH_URI"),
