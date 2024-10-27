@@ -16,8 +16,8 @@ func main() {
 		log.Fatalln("Error creating router: ", err)
 	}
 
-	log.Println("Starting at port ", PORT)
-	if err = r.Run("0.0.0.0:" + os.Getenv("PORT")); err != nil {
+	log.Println("Starting at port ", os.Getenv("PORT"))
+	if err = r.Run("0.0.0.0" + ":" + os.Getenv("PORT")); err != nil {
 		log.Fatalln("Error starting server: ", err)
 	}
 
