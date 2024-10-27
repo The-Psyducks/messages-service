@@ -8,7 +8,13 @@ import (
 	"os"
 )
 
-func CheckUserExists(id string, header string) (bool, error) {
+type UsersConnector struct{}
+
+func NewUsersConnector() *UsersConnector {
+	return &UsersConnector{}
+}
+
+func (uc *UsersConnector) CheckUserExists(id string, header string) (bool, error) {
 	if os.Getenv("MOCK_USERS_SERVICE") == "true" {
 		return true, nil
 	}
@@ -36,4 +42,8 @@ func CheckUserExists(id string, header string) (bool, error) {
 		return false, fmt.Errorf("error consulting user: %d", resp.StatusCode)
 
 	}
+}
+
+type ConnectorInterface interface {
+	CheckUserExists(id string, header string) (bool, error)
 }

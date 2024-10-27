@@ -19,12 +19,12 @@ type MockMessageService struct {
 	mock.Mock
 }
 
-func (m *MockMessageService) SendMessage(senderID, receiverID, content, authHeader string) *errors.MessageError {
-	args := m.Called(senderID, receiverID, content, authHeader)
+func (m *MockMessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError) {
+	args := m.Called(senderId, receiverId, content, authHeader)
 	if err := args.Get(0); err != nil {
-		return err.(*errors.MessageError)
+		return "", err.(*errors.MessageError)
 	}
-	return nil
+	return "", nil
 }
 
 func TestSendMessage_Success(t *testing.T) {

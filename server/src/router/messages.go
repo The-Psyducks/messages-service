@@ -6,6 +6,7 @@ import (
 	"messages/src/middleware"
 	"messages/src/repository"
 	"messages/src/service"
+	usersConnector "messages/src/user-connector"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,8 @@ func NewRouter() (*gin.Engine, error) {
 
 	r := gin.Default()
 	db := repository.NewRealTimeDatabase()
-	ms := service.NewMessageService(db)
+	users := usersConnector.NewUsersConnector()
+	ms := service.NewMessageService(db, users)
 	mc := controller.NewMessageController(ms)
 
 	private := r.Group("/")

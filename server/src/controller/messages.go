@@ -4,6 +4,7 @@ import (
 	"messages/src/model"
 	"messages/src/model/errors"
 	"messages/src/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +26,14 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 		errors.SendErrorMessage(ctx, errors.BadRequestError("Error Binding Request: "+err.Error()))
 		return
 	}
-	if err := mc.MessageService.SendMessage(req.SenderId, req.ReceiverId, req.Content, authHeader); err != nil {
+	ref, err := mc.MessageService.SendMessage(req.SenderId, req.ReceiverId, req.Content, authHeader)
+	if err != nil {
 		errors.SendErrorMessage(ctx, err)
 	}
+	sendMessageDeliveredResponse(ctx, ref)
+}
+
+func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {
+	data := model.MessageDeliveredResponse{ref}
+	ctx.JSON(http.StatusOK, data)
 }

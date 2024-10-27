@@ -18,7 +18,7 @@ func NewRealTimeDatabase() *RealTimeDatabase {
 	return &RealTimeDatabase{}
 }
 
-func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) error {
+func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) (string, error) {
 	client, ctx := db.createFirebaseDbClient()
 
 	resourceRef := db.createMessageRef(senderId, receiverId, client)
@@ -37,7 +37,7 @@ func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, cont
 	}
 
 	if _, err := resourceRef.Push(ctx, msg); err != nil {
-		return err
+		return "", err
 	}
 
 	/*var data map[string]interface{}
@@ -46,8 +46,8 @@ func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, cont
 	}
 
 	log.Println("data retrieved after inserting into db: ", data)*/
+	return resourceRef.Path, nil
 
-	return nil
 }
 
 func (db *RealTimeDatabase) createMessageRef(senderId string, receiverId string, client *db.Client) *db.Ref {
@@ -86,5 +86,5 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 }
 
 type RealTimeDatabaseInterface interface {
-	SendMessage(senderId string, receiverId string, content string) error
+	SendMessage(senderId string, receiverId string, content string) (string, error)
 }
