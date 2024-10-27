@@ -134,7 +134,6 @@ func BuildFirebaseConfig() error {
 	if err != nil {
 		return fmt.Errorf("error marshaling JSON: %w", err)
 	}
-	privateKey = strings.ReplaceAll(privateKey, "\\n", "\n")
 	err = os.WriteFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json", jsonData, 0644)
 	if err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
