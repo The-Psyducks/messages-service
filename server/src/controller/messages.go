@@ -2,10 +2,12 @@ package controller
 
 import (
 	"log"
+	"messages/src/auth"
 	"messages/src/model"
 	"messages/src/model/errors"
 	"messages/src/service"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,7 +30,14 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 		return
 	}
 	log.Println("Received Message Request: ", req)
-	ref, err := mc.MessageService.SendMessage(req.SenderId, req.ReceiverId, req.Content, authHeader)
+
+	bearerToken := ctx.GetHeader("Authorization")
+	token := strings.Split(bearerToken, "Bearer ")[1]
+
+	claims, _ := auth.ValidateToken(token)
+	senderId := claims.UserId
+
+	ref, err := mc.MessageService.SendMessage(senderId, req.ReceiverId, req.Content, authHeader)
 	if err != nil {
 		errors.SendErrorMessage(ctx, err)
 		return

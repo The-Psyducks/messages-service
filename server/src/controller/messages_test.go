@@ -3,6 +3,9 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
+	"messages/src/auth"
 	"messages/src/model"
 	"messages/src/model/errors"
 	"net/http"
@@ -32,18 +35,27 @@ func TestSendMessage_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
+	token, err := auth.GenerateToken("123", "mockUserName", false)
+	if err != nil {
+		log.Panicln("Error generating token: ", err)
+	}
+
+	bearerToken := "Bearer " + token
+	fmt.Println("bearer token", bearerToken)
+
 	// Prepare mock service and controller
 	mockService := new(MockMessageService)
 	controller := NewMessageController(mockService)
 
 	// Define input and expected behavior
-	reqBody := model.MessageRequest{SenderId: "123", ReceiverId: "456", Content: "Hello"}
-	mockService.On("SendMessage", "123", "456", "Hello", "Bearer token").Return(nil)
+	reqBody := model.MessageRequest{ReceiverId: "456", Content: "Hello"}
+	mockService.On("SendMessage", "123", "456", "Hello", bearerToken).Return(nil)
 
 	// Prepare the request
 	jsonData, _ := json.Marshal(reqBody)
 	ctx.Request = httptest.NewRequest(http.MethodPost, "/send", bytes.NewBuffer(jsonData))
-	ctx.Request.Header.Set("Authorization", "Bearer token")
+	ctx.Request.Header.Set("Authorization", bearerToken)
+	ctx.Request.Header.Set("Content-Type", "application/json")
 
 	// Call the function
 	controller.SendMessage(ctx)
@@ -58,12 +70,20 @@ func TestSendMessage_BindJSONError(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
+	token, err := auth.GenerateToken("123", "mockUserName", false)
+	if err != nil {
+		log.Panicln("Error generating token: ", err)
+	}
+
+	bearerToken := "Bearer " + token
+
 	mockService := new(MockMessageService)
 	controller := NewMessageController(mockService)
 
 	// Simulate invalid JSON body
 	ctx.Request = httptest.NewRequest(http.MethodPost, "/send", bytes.NewBuffer([]byte("{invalid-json")))
 	ctx.Request.Header.Set("Authorization", "Bearer token")
+	ctx.Request.Header.Set("Authentication", bearerToken)
 
 	controller.SendMessage(ctx)
 
@@ -77,18 +97,25 @@ func TestSendMessage_ServiceError(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
+	token, err := auth.GenerateToken("123", "mockUserName", false)
+	if err != nil {
+		log.Panicln("Error generating token: ", err)
+	}
+
+	bearerToken := "Bearer " + token
+
 	mockService := new(MockMessageService)
 	controller := NewMessageController(mockService)
 
 	// Define input and expected error from the service
-	reqBody := model.MessageRequest{SenderId: "123", ReceiverId: "456", Content: "Hello"}
+	reqBody := model.MessageRequest{ReceiverId: "456", Content: "Hello"}
 	expectedErr := errors.BadRequestError("Service error") // Simulate an error returned by the service
-	mockService.On("SendMessage", "123", "456", "Hello", "Bearer token").Return(expectedErr)
+	mockService.On("SendMessage", "123", "456", "Hello", bearerToken).Return(expectedErr)
 
 	// Prepare the request
 	jsonData, _ := json.Marshal(reqBody)
 	ctx.Request = httptest.NewRequest(http.MethodPost, "/send", bytes.NewBuffer(jsonData))
-	ctx.Request.Header.Set("Authorization", "Bearer token")
+	ctx.Request.Header.Set("Authorization", bearerToken)
 
 	// Call the function
 	controller.SendMessage(ctx)
