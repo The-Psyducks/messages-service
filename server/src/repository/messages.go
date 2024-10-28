@@ -3,12 +3,15 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
+	"fmt"
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -16,6 +19,10 @@ type RealTimeDatabase struct {
 }
 
 func NewRealTimeDatabase() *RealTimeDatabase {
+	if err := BuildFirebaseConfig(); err != nil {
+		log.Fatalln("Error building firebase config:", err)
+	}
+
 	return &RealTimeDatabase{}
 }
 
@@ -71,7 +78,7 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 	conf := &firebase.Config{
 		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
 	}
-
+	//make opt with env vars insteaf of hardcoded path
 	opt := option.WithCredentialsFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
@@ -88,4 +95,49 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 
 type RealTimeDatabaseInterface interface {
 	SendMessage(senderId string, receiverId string, content string) (string, error)
+}
+
+type FirebaseConfig struct {
+	Type                    string `json:"type"`
+	ProjectID               string `json:"project_id"`
+	PrivateKeyID            string `json:"private_key_id"`
+	PrivateKey              string `json:"private_key"`
+	ClientEmail             string `json:"client_email"`
+	ClientID                string `json:"client_id"`
+	AuthURI                 string `json:"auth_uri"`
+	TokenURI                string `json:"token_uri"`
+	AuthProviderX509CertURL string `json:"auth_provider_x509_cert_url"`
+	ClientX509CertURL       string `json:"client_x509_cert_url"`
+	UniverseDomain          string `json:"universe_domain"`
+}
+
+// BuildFirebaseConfig builds the Firebase configuration from environment variables
+func BuildFirebaseConfig() error {
+	fmt.Println("ENV VAR FOR CONFIG:", os.Getenv("SERVICE_ACCOUNT_PROJECT_ID"))
+	privateKey := os.Getenv("SERVICE_ACCOUNT_PRIVATE_KEY")
+	formatedPrivateKey := strings.ReplaceAll(privateKey, "\\n", "\n")
+	configFile := &FirebaseConfig{
+		Type:                    "service_account",
+		ProjectID:               os.Getenv("SERVICE_ACCOUNT_PROJECT_ID"),
+		PrivateKeyID:            os.Getenv("SERVICE_ACCOUNT_PRIVATE_KEY_ID"),
+		PrivateKey:              formatedPrivateKey,
+		ClientEmail:             os.Getenv("SERVICE_ACCOUNT_CLIENT_EMAIL"),
+		ClientID:                os.Getenv("SERVICE_ACCOUNT_CLIENT_ID"),
+		AuthURI:                 os.Getenv("SERVICE_ACCOUNT_AUTH_URI"),
+		TokenURI:                os.Getenv("SERVICE_ACCOUNT_TOKEN_URI"),
+		AuthProviderX509CertURL: os.Getenv("SERVICE_ACCOUNT_AUTH_PROVIDER_CERT_URL"),
+		ClientX509CertURL:       os.Getenv("SERVICE_ACCOUNT_CLIENT_CERT_URL"),
+		UniverseDomain:          os.Getenv("SERVICE_ACCOUNT_UNIVERSE_DOMAIN"),
+	}
+
+	jsonData, err := json.MarshalIndent(configFile, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshaling JSON: %w", err)
+	}
+	err = os.WriteFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json", jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+
+	return nil
 }
