@@ -68,6 +68,8 @@ func (db *RealTimeDatabase) createMessageRef(senderId string, receiverId string,
 	uri := "dm-" + firstUser + "-" + secondUser
 	if os.Getenv("ENVIRONMENT") == "test" {
 		uri = "test/" + uri
+	} else {
+		uri = "prod" + uri
 	}
 	ref := client.NewRef(uri)
 	return ref
@@ -93,8 +95,27 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 	return client, ctx
 }
 
+func (db *RealTimeDatabase) GetConversations(id string) ([]string, error) {
+	client, ctx := db.createFirebaseDbClient()
+	var uri string
+	uri = os.Getenv("ENVIRONMENT")
+	ref := client.NewRef(uri)
+	var data map[string]interface{}
+	if err := ref.Get(ctx, &data); err != nil {
+		return nil, err
+	}
+	conversations := make([]string, 0, len(data))
+
+	// Iterate over the map and collect the keys
+	for key := range data {
+		conversations = append(conversations, key)
+	}
+	return conversations, nil
+}
+
 type RealTimeDatabaseInterface interface {
 	SendMessage(senderId string, receiverId string, content string) (string, error)
+	GetConversations(id string) ([]string, error)
 }
 
 type FirebaseConfig struct {

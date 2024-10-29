@@ -18,6 +18,10 @@ func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string
 	return args.String(0), args.Error(1)
 }
 
+func (m *MockDatabase) GetConversations(id string) ([]string, error) {
+	panic("implement me")
+}
+
 // Mock for ConnectorInterface
 type MockUserConnector struct {
 	mock.Mock

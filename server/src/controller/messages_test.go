@@ -30,6 +30,10 @@ func (m *MockMessageService) SendMessage(senderId string, receiverId string, con
 	return "", nil
 }
 
+func (m *MockMessageService) GetMessages(id string) *errors.MessageError {
+	panic("implement me")
+}
+
 func TestSendMessage_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()

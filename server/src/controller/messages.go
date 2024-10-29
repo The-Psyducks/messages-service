@@ -49,3 +49,16 @@ func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {
 	data := model.MessageDeliveredResponse{ChatReference: ref}
 	ctx.JSON(http.StatusOK, data)
 }
+
+func (mc *MessageController) GetMessages(ctx *gin.Context) {
+	//bearerToken := ctx.GetHeader("Authorization")
+	//token := strings.Split(bearerToken, "Bearer ")[1]
+	//
+	//claims, _ := auth.ValidateToken(token)
+	userId := "1234" //claims.UserId
+
+	if err := mc.MessageService.GetMessages(userId); err != nil {
+		errors.SendErrorMessage(ctx, err)
+		return
+	}
+}

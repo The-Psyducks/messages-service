@@ -3,7 +3,6 @@ package router
 import (
 	"log"
 	"messages/src/controller"
-	"messages/src/middleware"
 	"messages/src/repository"
 	"messages/src/service"
 	usersConnector "messages/src/user-connector"
@@ -44,8 +43,9 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	mc := controller.NewMessageController(ms)
 
 	private := r.Group("/")
-	private.Use(middleware.AuthMiddleware())
+	//private.Use(middleware.AuthMiddleware())
 	{
+		private.GET("/messages", mc.GetMessages)
 		private.POST("/messages", mc.SendMessage)
 	}
 

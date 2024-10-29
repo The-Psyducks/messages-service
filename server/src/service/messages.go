@@ -1,10 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"messages/src/model/errors"
 	"messages/src/repository"
 	usersConnector "messages/src/user-connector"
+	"strings"
 )
 
 type MessageService struct {
@@ -45,6 +47,28 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	return ref, nil
 }
 
+func (ms *MessageService) GetMessages(id string) *errors.MessageError {
+	conversations, err := ms.db.GetConversations(id)
+	if err != nil {
+		log.Fatalln("Error getting conversations: ", err)
+	}
+	userConversations := filterConversations(id, conversations)
+	fmt.Println(userConversations)
+
+	return nil
+}
+
+func filterConversations(id string, conversations []string) []string {
+	result := []string{}
+	for _, conversation := range conversations {
+		if strings.Contains(conversation, id) {
+			result = append(result, conversation)
+		}
+	}
+	return result
+}
+
 type MessageServiceInterface interface {
 	SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError)
+	GetMessages(id string) *errors.MessageError
 }
