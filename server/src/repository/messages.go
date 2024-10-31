@@ -97,8 +97,7 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 
 func (db *RealTimeDatabase) GetConversations(id string) ([]string, error) {
 	client, ctx := db.createFirebaseDbClient()
-	var uri string
-	uri = os.Getenv("ENVIRONMENT")
+	uri := os.Getenv("ENVIRONMENT")
 	ref := client.NewRef(uri)
 	var data map[string]interface{}
 	if err := ref.Get(ctx, &data); err != nil {
