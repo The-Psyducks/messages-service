@@ -34,15 +34,38 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 	bearerToken := ctx.GetHeader("Authorization")
 	token := strings.Split(bearerToken, "Bearer ")[1]
 
-	claims, _ := auth.ValidateToken(token)
+	claims, err := auth.ValidateToken(token)
+	if err != nil {
+		errors.SendErrorMessage(ctx, errors.AuthenticationError("Bad token reached controller"))
+		return
+	}
 	senderId := claims.UserId
 
-	ref, err := mc.MessageService.SendMessage(senderId, req.ReceiverId, req.Content, authHeader)
+	ref, er := mc.MessageService.SendMessage(senderId, req.ReceiverId, req.Content, authHeader)
+	if er != nil {
+		errors.SendErrorMessage(ctx, er)
+		return
+	}
+	sendMessageDeliveredResponse(ctx, ref)
+}
+
+func (mc *MessageController) GetMessages(ctx *gin.Context) {
+	bearerToken := ctx.GetHeader("Authorization")
+	token := strings.Split(bearerToken, "Bearer ")[1]
+
+	claims, _ := auth.ValidateToken(token)
+	userId := claims.UserId
+	conversationReferences, err := mc.MessageService.GetMessages(userId)
 	if err != nil {
 		errors.SendErrorMessage(ctx, err)
 		return
 	}
-	sendMessageDeliveredResponse(ctx, ref)
+	sendGetMessagesResponse(ctx, conversationReferences)
+}
+
+func sendGetMessagesResponse(ctx *gin.Context, references []string) {
+	data := model.GetMessagesResponse{ChatReferences: references}
+	ctx.JSON(http.StatusOK, data)
 }
 
 func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {

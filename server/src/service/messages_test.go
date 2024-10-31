@@ -18,6 +18,10 @@ func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string
 	return args.String(0), args.Error(1)
 }
 
+func (m *MockDatabase) GetConversations(id string) ([]string, error) {
+	return []string{"1234-5678", "1234-1111", "9999-9999"}, nil
+}
+
 // Mock for ConnectorInterface
 type MockUserConnector struct {
 	mock.Mock
@@ -131,4 +135,22 @@ func TestSendMessage_FailsToPushMessage(t *testing.T) {
 
 	mockDB.AssertExpectations(t)
 	mockUserConnector.AssertExpectations(t)
+}
+
+func TestGetMessagesHappyPath(t *testing.T) {
+	//arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	//mockDB.On("GetConversations", "1234").Return([]string{"1234-5678", "1234-1111", "9999-9999"}, nil)
+	service := NewMessageService(mockDB, mockUserConnector)
+
+	//act
+	resources, err := service.GetMessages("1234")
+	//assert
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+
+	assert.Equal(t, []string{"1234-5678", "1234-1111"}, resources)
+
 }

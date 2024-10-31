@@ -15,3 +15,7 @@ func (m *MockRealTimeDatabase) SendMessage(senderId, receiverId, content string)
 	}
 	return "mockMessageRef", nil
 }
+
+func (m *MockRealTimeDatabase) GetConversations(id string) ([]string, error) {
+	panic("implement me")
+}
