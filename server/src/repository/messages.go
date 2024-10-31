@@ -69,7 +69,7 @@ func (db *RealTimeDatabase) createMessageRef(senderId string, receiverId string,
 	if os.Getenv("ENVIRONMENT") == "test" {
 		uri = "test/" + uri
 	} else {
-		uri = "prod" + uri
+		uri = "prod/" + uri
 	}
 	ref := client.NewRef(uri)
 	return ref
