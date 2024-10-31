@@ -30,7 +30,7 @@ func (m *MockMessageService) SendMessage(senderId string, receiverId string, con
 	return "", nil
 }
 
-func (m *MockMessageService) GetMessages(id string) *errors.MessageError {
+func (m *MockMessageService) GetMessages(id string) ([]string, *errors.MessageError) {
 	panic("implement me")
 }
 

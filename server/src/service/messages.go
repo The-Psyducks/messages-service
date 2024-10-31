@@ -47,15 +47,15 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	return ref, nil
 }
 
-func (ms *MessageService) GetMessages(id string) *errors.MessageError {
+func (ms *MessageService) GetMessages(id string) ([]string, *errors.MessageError) {
 	conversations, err := ms.db.GetConversations(id)
 	if err != nil {
-		log.Fatalln("Error getting conversations: ", err)
+		return nil, errors.InternalServerError("error getting conversations: " + err.Error())
 	}
 	userConversations := filterConversations(id, conversations)
 	fmt.Println(userConversations)
 
-	return nil
+	return userConversations, nil
 }
 
 func filterConversations(id string, conversations []string) []string {
@@ -70,5 +70,5 @@ func filterConversations(id string, conversations []string) []string {
 
 type MessageServiceInterface interface {
 	SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError)
-	GetMessages(id string) *errors.MessageError
+	GetMessages(id string) ([]string, *errors.MessageError)
 }
