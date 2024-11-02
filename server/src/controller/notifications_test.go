@@ -56,5 +56,4 @@ func TestAddDeviceForUser(t *testing.T) {
 	//assert
 	usersConnectorMock.AssertCalled(t, "CheckUserExists", "userId", bearerToken)
 	devicesDatabaseMock.AssertCalled(t, "AddDevice", "userId", "deviceToken")
-
 }

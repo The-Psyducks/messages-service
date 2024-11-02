@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/jmoiron/sqlx"
 	"log"
+	"os"
 )
 
 type DevicesDatabaseInterface interface {
@@ -22,13 +23,20 @@ func NewDevicesPersistentDatabase(db *sqlx.DB) (DevicesDatabaseInterface, error)
 
 func prepareDatabase(db *sqlx.DB) error {
 	//create notifications_db if it doesn't exist
-	_, err := db.Exec(`
-		CREATE TABLE IF NOT EXISTS devices_db (
+	query := `
+		CREATE TABLE IF NOT EXISTS devices_db`
+	if os.Getenv("ENVIRONMENT") != "HEROKU" {
+		query += `_test`
+	}
+
+	query += `(
 		    			user_id TEXT,
 		    			token TEXT,
 		    			PRIMARY KEY (user_id, token)
 		);
-	`)
+	`
+	log.Println("Executing query: ", query)
+	_, err := db.Exec(query)
 	if err != nil {
 		return err
 	}
