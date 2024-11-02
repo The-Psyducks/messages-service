@@ -1,11 +1,16 @@
 package router
 
 import (
+	"fmt"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"log"
 	"messages/src/controller"
+	"messages/src/middleware"
 	"messages/src/repository"
 	"messages/src/service"
 	usersConnector "messages/src/user-connector"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +35,7 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	case MOCK_EXTERNAL:
 		db = repository.NewMockRealTimeDatabase()
 		users = usersConnector.NewMockConnector()
+		log.Println("Mocking external connections")
 		//case DEFAULT:
 		//	db = repository.NewRealTimeDatabase()
 		//	users = usersConnector.NewUsersConnector()
@@ -42,11 +48,25 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	ms := service.NewMessageService(db, users)
 	mc := controller.NewMessageController(ms)
 
+	postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return nil, fmt.Errorf("error connecting to database: %v", err)
+
+	}
+
+	notificationsDB, err := repository.NewDevicesPersistentDatabase(postgresDB)
+	if err != nil {
+		return nil, fmt.Errorf("error preparing notifications database: %v", err)
+	}
+	nc := controller.NewNotificationsController(users, notificationsDB)
+
 	private := r.Group("/")
-	//private.Use(middleware.AuthMiddleware())
+	private.Use(middleware.AuthMiddleware())
 	{
 		private.GET("/messages", mc.GetMessages)
 		private.POST("/messages", mc.SendMessage)
+
+		private.POST("/device", nc.PostDevice)
 	}
 
 	return r, nil
