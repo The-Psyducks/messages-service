@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// Mock of MessageServiceInterface
 type MockMessageService struct {
 	mock.Mock
 }
@@ -35,6 +34,7 @@ func (m *MockMessageService) GetMessages(id string) ([]string, *errors.MessageEr
 }
 
 func TestSendMessage_Success(t *testing.T) {
+	//arrange
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
@@ -49,20 +49,18 @@ func TestSendMessage_Success(t *testing.T) {
 	mockService := new(MockMessageService)
 	controller := NewMessageController(mockService)
 
-	// Define input and expected behavior
 	reqBody := model.MessageRequest{ReceiverId: "456", Content: "Hello"}
 	mockService.On("SendMessage", "123", "456", "Hello", bearerToken).Return(nil)
 
-	// Prepare the request
 	jsonData, _ := json.Marshal(reqBody)
 	ctx.Request = httptest.NewRequest(http.MethodPost, "/messages", bytes.NewBuffer(jsonData))
 	ctx.Request.Header.Set("Authorization", bearerToken)
 	ctx.Request.Header.Set("Content-Type", "application/json")
 
-	// Call the function
+	//act
 	controller.SendMessage(ctx)
 
-	// Assertions
+	// Assert
 	assert.Equal(t, http.StatusOK, w.Code)
 	mockService.AssertExpectations(t)
 }
@@ -82,7 +80,7 @@ func TestSendMessage_BindJSONError(t *testing.T) {
 	mockService := new(MockMessageService)
 	controller := NewMessageController(mockService)
 
-	// Simulate invalid JSON body
+	// Invalid JSON body
 	ctx.Request = httptest.NewRequest(http.MethodPost, "/messages", bytes.NewBuffer([]byte("{invalid-json")))
 	ctx.Request.Header.Set("Authorization", "Bearer token")
 	ctx.Request.Header.Set("Authentication", bearerToken)
@@ -109,7 +107,6 @@ func TestSendMessage_ServiceError(t *testing.T) {
 	mockService := new(MockMessageService)
 	controller := NewMessageController(mockService)
 
-	// Define input and expected error from the service
 	reqBody := model.MessageRequest{ReceiverId: "456", Content: "Hello"}
 	expectedErr := errors.BadRequestError("Service error") // Simulate an error returned by the service
 	mockService.On("SendMessage", "123", "456", "Hello", bearerToken).Return(expectedErr)
@@ -180,7 +177,6 @@ func TestGetMessages(t *testing.T) {
 	mc.GetMessages(ctx)
 
 	//assert
-	//get body of response from gin context
 	var response model.GetMessagesResponse
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Nil(t, err)
