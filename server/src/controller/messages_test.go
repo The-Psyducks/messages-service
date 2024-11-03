@@ -129,12 +129,12 @@ type RealTimeDatabaseMock struct {
 	mock.Mock
 }
 
-func (r RealTimeDatabaseMock) SendMessage(senderId string, receiverId string, content string) (string, error) {
+func (r *RealTimeDatabaseMock) SendMessage(senderId string, receiverId string, content string) (string, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (r RealTimeDatabaseMock) GetConversations(id string) ([]string, error) {
+func (r *RealTimeDatabaseMock) GetConversations(id string) ([]string, error) {
 	args := r.Called(id)
 	if err := args.Get(1); err != nil {
 		return nil, err.(error)
@@ -146,7 +146,7 @@ type UsersConnectorMock struct {
 	mock.Mock
 }
 
-func (u UsersConnectorMock) CheckUserExists(id string, header string) (bool, error) {
+func (u *UsersConnectorMock) CheckUserExists(id string, header string) (bool, error) {
 	//TODO implement me
 	panic("implement me")
 }
