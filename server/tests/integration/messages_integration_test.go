@@ -17,7 +17,7 @@ func TestSendMessageHappyPath(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	// Create the router with mock configuration
-	r, err := router.NewRouter(router.MOCK_EXTERNAL) // Assuming you have this method
+	r, err := router.NewRouter(router.MOCK_EXTERNAL)
 	if err != nil {
 		t.Fatalf("could not create router: %v", err)
 	}
@@ -45,10 +45,8 @@ func TestSendMessageHappyPath(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	// Create a response recorder
 	w := httptest.NewRecorder()
 
-	// Perform the request
 	r.ServeHTTP(w, req)
 
 	// Check the status code
@@ -203,7 +201,3 @@ func TestSendMessageInvalidToken(t *testing.T) {
 		t.Errorf("expected error status to be '%d', got '%d'", expectedErrorStatus, responseBody.Status)
 	}
 }
-
-//func TestGetMessages(t *testing.T) {
-//
-//}

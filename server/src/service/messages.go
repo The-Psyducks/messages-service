@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"messages/src/model/errors"
 	"messages/src/repository"
@@ -41,7 +40,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 
 	//validar que el destinatario exista
 	ref, err := ms.db.SendMessage(senderId, receiverId, content)
-	
+
 	if err != nil {
 		return "", errors.InternalServerError("error sending message: " + err.Error())
 	}
@@ -54,7 +53,6 @@ func (ms *MessageService) GetMessages(id string) ([]string, *errors.MessageError
 		return nil, errors.InternalServerError("error getting conversations: " + err.Error())
 	}
 	userConversations := filterConversations(id, conversations)
-	fmt.Println(userConversations)
 
 	return userConversations, nil
 }
