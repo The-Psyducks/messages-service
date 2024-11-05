@@ -67,7 +67,12 @@ func filterConversations(id string, conversations []string) []string {
 	return result
 }
 
+func (ms *MessageService) SendNotification() error {
+	return ms.db.SendNotification("xd")
+}
+
 type MessageServiceInterface interface {
 	SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError)
 	GetMessages(id string) ([]string, *errors.MessageError)
+	SendNotification() error
 }

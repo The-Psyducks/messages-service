@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
+	"firebase.google.com/go/messaging"
 	"fmt"
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
@@ -15,15 +16,65 @@ import (
 	"time"
 )
 
+type RealTimeDatabaseInterface interface {
+	SendMessage(senderId string, receiverId string, content string) (string, error)
+	GetConversations(id string) ([]string, error)
+	SendNotification(token string) error
+}
+
 type RealTimeDatabase struct {
 }
 
-func NewRealTimeDatabase() *RealTimeDatabase {
+func NewRealTimeDatabase() RealTimeDatabaseInterface {
 	if err := BuildFirebaseConfig(); err != nil {
 		log.Fatalln("Error building firebase config:", err)
 	}
 
 	return &RealTimeDatabase{}
+}
+
+func (db *RealTimeDatabase) SendNotification(token string) error {
+
+	ctx := context.Background()
+	conf := &firebase.Config{
+		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
+	}
+	//make opt with env vars insteaf of hardcoded path
+	opt := option.WithCredentialsFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json")
+
+	app, err := firebase.NewApp(ctx, conf, opt)
+	if err != nil {
+		log.Fatalln("Error initializing firebase app:", err)
+	}
+	client, err := app.Messaging(ctx)
+
+	if err != nil {
+		log.Fatalln("Error initializing messaging client:", err)
+	}
+	registrationToken := "cggL73u4ROSb9pTnmiOsli:APA91bGi_jrpVh1gXGjT-7smD57T-oSLSXlOwmfkFw15bPLo60PqDcGcMHfcuvXiHebWQgOwaMYZToRtoIh0w7nrdv54jVRfLZNW-pUr7eifp6SI7stbRhw"
+
+	message := &messaging.Message{
+		Data: map[string]string{
+			"score": "850",
+			"time":  "2:45",
+		},
+		Token: registrationToken,
+		Notification: &messaging.Notification{
+			Title:    "Hello",
+			Body:     "Hello, world!",
+			ImageURL: "https://example.com/image.png",
+		},
+	}
+	response, err := client.Send(ctx, message)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	fmt.Println("firebase response", response)
+
+	return nil
+
 }
 
 func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) (string, error) {
@@ -110,11 +161,6 @@ func (db *RealTimeDatabase) GetConversations(id string) ([]string, error) {
 		conversations = append(conversations, key)
 	}
 	return conversations, nil
-}
-
-type RealTimeDatabaseInterface interface {
-	SendMessage(senderId string, receiverId string, content string) (string, error)
-	GetConversations(id string) ([]string, error)
 }
 
 type FirebaseConfig struct {

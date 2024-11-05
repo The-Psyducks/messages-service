@@ -65,8 +65,8 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	{
 		private.GET("/messages", mc.GetMessages)
 		private.POST("/messages", mc.SendMessage)
-
 		private.POST("/device", nc.PostDevice)
+		private.POST("/notification", mc.SendNotication)
 	}
 
 	return r, nil

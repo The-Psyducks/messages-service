@@ -5,6 +5,11 @@ import "errors"
 type MockRealTimeDatabase struct {
 }
 
+func (m *MockRealTimeDatabase) SendNotification(token string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewMockRealTimeDatabase() RealTimeDatabaseInterface {
 	return &MockRealTimeDatabase{}
 }
