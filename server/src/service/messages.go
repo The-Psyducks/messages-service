@@ -9,16 +9,16 @@ import (
 )
 
 type MessageService struct {
-	db    repository.RealTimeDatabaseInterface
-	users usersConnector.ConnectorInterface
+	rtDb    repository.RealTimeDatabaseInterface
+	dDb	 	repository.DevicesDatabaseInterface
+	users 	usersConnector.ConnectorInterface
 }
 
-func NewMessageService(db repository.RealTimeDatabaseInterface, users usersConnector.ConnectorInterface) *MessageService {
-	return &MessageService{db, users}
+func NewMessageService(rtDb repository.RealTimeDatabaseInterface, dDb repository.DevicesDatabaseInterface,users usersConnector.ConnectorInterface) *MessageService {
+	return &MessageService{rtDb, dDb, users}
 }
 
 func (ms *MessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError) {
-	//validar que el remitente exista
 	senderExists, err := ms.users.CheckUserExists(senderId, authHeader)
 	if err != nil {
 		log.Printf("error validating user: %v\n", err)
@@ -38,8 +38,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 		return "", errors.ValidationError("receiver does not exist")
 	}
 
-	//validar que el destinatario exista
-	ref, err := ms.db.SendMessage(senderId, receiverId, content)
+	ref, err := ms.rtDb.SendMessage(senderId, receiverId, content)
 
 	if err != nil {
 		return "", errors.InternalServerError("error sending message: " + err.Error())
@@ -48,7 +47,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 }
 
 func (ms *MessageService) GetMessages(id string) ([]string, *errors.MessageError) {
-	conversations, err := ms.db.GetConversations(id)
+	conversations, err := ms.rtDb.GetConversations(id)
 	if err != nil {
 		return nil, errors.InternalServerError("error getting conversations: " + err.Error())
 	}
@@ -67,12 +66,20 @@ func filterConversations(id string, conversations []string) []string {
 	return result
 }
 
-func (ms *MessageService) SendNotification() error {
-	return ms.db.SendNotification("xd")
+func (ms *MessageService) SendNotification(receiverId, title, body string) *errors.MessageError {
+	devicesTokens, err := ms.dDb.GetDevicesTokens(receiverId)
+	if err != nil {
+		return errors.InternalServerError("error getting devices tokens: " + err.Error())
+	}
+
+	if err := ms.rtDb.SendNotificationToUserDevices(devicesTokens, title, body); err != nil {
+		return errors.InternalServerError("error sending notification: " + err.Error())
+	}
+	return nil
 }
 
 type MessageServiceInterface interface {
 	SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError)
 	GetMessages(id string) ([]string, *errors.MessageError)
-	SendNotification() error
+	SendNotification(receiver, title, body string) *errors.MessageError
 }

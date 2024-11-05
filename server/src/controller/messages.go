@@ -74,5 +74,16 @@ func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {
 }
 
 func (mc *MessageController) SendNotication(ctx *gin.Context) {
-	mc.MessageService.SendNotification()
+	var notificationRequest model.NotificationRequest
+	if err := ctx.BindJSON(&notificationRequest); err != nil {
+		errors.SendErrorMessage(ctx, errors.BadRequestError("Error Binding Request: "+err.Error()))
+		return
+	}
+	log.Println("Received Notification Request: ", notificationRequest)
+	
+	err := mc.MessageService.SendNotification(notificationRequest.ReceiverId, notificationRequest.Title, notificationRequest.Body)
+	if err != nil {
+		errors.SendErrorMessage(ctx, err)
+		return
+	}
 }

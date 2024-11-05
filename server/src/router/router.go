@@ -29,25 +29,21 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	log.Println("Creating router...")
 
 	r := gin.Default()
-	var db repository.RealTimeDatabaseInterface
+	var rtDb repository.RealTimeDatabaseInterface
 	var users usersConnector.ConnectorInterface
 	switch config {
 	case MOCK_EXTERNAL:
-		db = repository.NewMockRealTimeDatabase()
+		rtDb = repository.NewMockRealTimeDatabase()
 		users = usersConnector.NewMockConnector()
 		log.Println("Mocking external connections")
 		//case DEFAULT:
 		//	db = repository.NewRealTimeDatabase()
 		//	users = usersConnector.NewUsersConnector()
 	default:
-		db = repository.NewRealTimeDatabase()
+		rtDb = repository.NewRealTimeDatabase()
 		users = usersConnector.NewUsersConnector()
 
 	}
-
-	ms := service.NewMessageService(db, users)
-	mc := controller.NewMessageController(ms)
-
 	postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to database: %v", err)
@@ -55,6 +51,10 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	}
 
 	notificationsDB, err := repository.NewDevicesPersistentDatabase(postgresDB)
+
+	ms := service.NewMessageService(rtDb, notificationsDB, users)
+	mc := controller.NewMessageController(ms)
+
 	if err != nil {
 		return nil, fmt.Errorf("error preparing notifications database: %v", err)
 	}

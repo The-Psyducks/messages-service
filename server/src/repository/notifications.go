@@ -8,6 +8,7 @@ import (
 
 type DevicesDatabaseInterface interface {
 	AddDevice(id string, token string) error
+	GetDevicesTokens(id string) ([]string, error)
 }
 
 type DevicesPersistentDatabase struct {
@@ -47,4 +48,21 @@ func prepareDatabase(db *sqlx.DB) error {
 func (db *DevicesPersistentDatabase) AddDevice(id string, token string) error {
 	_, err := db.db.Exec(`INSERT INTO devices_db (user_id, token) VALUES ($1, $2)`, id, token)
 	return err
+}
+
+func (db *DevicesPersistentDatabase) GetDevicesTokens(id string) ([]string, error) {
+	rows, err := db.db.Query(`SELECT token FROM devices_db WHERE user_id=$1`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tokens := []string{}
+	for rows.Next() {
+		var token string
+		if err := rows.Scan(&token); err != nil {
+			return nil, err
+		}
+		tokens = append(tokens, token)
+	}
+	return tokens, nil
 }

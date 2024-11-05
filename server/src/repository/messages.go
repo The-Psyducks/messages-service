@@ -19,7 +19,7 @@ import (
 type RealTimeDatabaseInterface interface {
 	SendMessage(senderId string, receiverId string, content string) (string, error)
 	GetConversations(id string) ([]string, error)
-	SendNotification(token string) error
+	SendNotificationToUserDevices(devicesTokens []string, title, body string) error
 }
 
 type RealTimeDatabase struct {
@@ -33,7 +33,7 @@ func NewRealTimeDatabase() RealTimeDatabaseInterface {
 	return &RealTimeDatabase{}
 }
 
-func (db *RealTimeDatabase) SendNotification(token string) error {
+func (db *RealTimeDatabase) sendNotification(token, title, body string) error {
 
 	ctx := context.Background()
 	conf := &firebase.Config{
@@ -51,18 +51,15 @@ func (db *RealTimeDatabase) SendNotification(token string) error {
 	if err != nil {
 		log.Fatalln("Error initializing messaging client:", err)
 	}
-	registrationToken := "cggL73u4ROSb9pTnmiOsli:APA91bGi_jrpVh1gXGjT-7smD57T-oSLSXlOwmfkFw15bPLo60PqDcGcMHfcuvXiHebWQgOwaMYZToRtoIh0w7nrdv54jVRfLZNW-pUr7eifp6SI7stbRhw"
 
 	message := &messaging.Message{
 		Data: map[string]string{
-			"score": "850",
-			"time":  "2:45",
+			"deeplink": "dale juancito mandame el deep",
 		},
-		Token: registrationToken,
+		Token: token,
 		Notification: &messaging.Notification{
-			Title:    "Hello",
-			Body:     "Hello, world!",
-			ImageURL: "https://example.com/image.png",
+			Title:    title,
+			Body:     body,
 		},
 	}
 	response, err := client.Send(ctx, message)
@@ -75,6 +72,15 @@ func (db *RealTimeDatabase) SendNotification(token string) error {
 
 	return nil
 
+}
+
+func (db *RealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+	for _, token := range devicesTokens {
+		if err := db.sendNotification(token, title, body); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) (string, error) {
