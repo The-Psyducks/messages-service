@@ -11,6 +11,23 @@ type DevicesDatabaseInterface interface {
 	GetDevicesTokens(id string) ([]string, error)
 }
 
+type MockDevicesDatabase struct {
+}
+
+func (m MockDevicesDatabase) AddDevice(id string, token string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m MockDevicesDatabase) GetDevicesTokens(id string) ([]string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewMockDevicesDatabase() DevicesDatabaseInterface {
+	return &MockDevicesDatabase{}
+}
+
 type DevicesPersistentDatabase struct {
 	db *sqlx.DB
 }

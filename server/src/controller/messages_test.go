@@ -21,6 +21,11 @@ type MockMessageService struct {
 	mock.Mock
 }
 
+func (m *MockMessageService) SendNotification(receiver, title, body string) *errors.MessageError {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *MockMessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError) {
 	args := m.Called(senderId, receiverId, content, authHeader)
 	if err := args.Get(0); err != nil {
@@ -129,6 +134,11 @@ type RealTimeDatabaseMock struct {
 	mock.Mock
 }
 
+func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (r *RealTimeDatabaseMock) SendMessage(senderId string, receiverId string, content string) (string, error) {
 	//TODO implement me
 	panic("implement me")
@@ -151,6 +161,20 @@ func (u *UsersConnectorMock) CheckUserExists(id string, header string) (bool, er
 	panic("implement me")
 }
 
+type MockDevicesDatabase struct {
+	mock.Mock
+}
+
+func (m *MockDevicesDatabase) AddDevice(id string, token string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockDevicesDatabase) GetDevicesTokens(id string) ([]string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func TestGetMessages(t *testing.T) {
 	//arrange
 	gin.SetMode(gin.TestMode)
@@ -165,7 +189,8 @@ func TestGetMessages(t *testing.T) {
 
 	realTimeDatabaseMock := new(RealTimeDatabaseMock)
 	usersConnectorMock := new(UsersConnectorMock)
-	messageService := service.NewMessageService(realTimeDatabaseMock, usersConnectorMock)
+	dDbMock := new(MockDevicesDatabase)
+	messageService := service.NewMessageService(realTimeDatabaseMock, dDbMock, usersConnectorMock)
 	mc := NewMessageController(messageService)
 
 	ctx.Request = httptest.NewRequest(http.MethodGet, "/messages", nil)

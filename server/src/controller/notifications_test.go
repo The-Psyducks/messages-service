@@ -26,6 +26,11 @@ type mockDatabase struct {
 	mock.Mock
 }
 
+func (m *mockDatabase) GetDevicesTokens(id string) ([]string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *mockDatabase) AddDevice(id string, token string) error {
 	_ = m.Called(id, token)
 	return nil
@@ -48,9 +53,12 @@ func TestAddDeviceForUser(t *testing.T) {
 	ctx.Request, _ = http.NewRequest("POST", "/device", bytes.NewBufferString(body))
 	ctx.Request.Header.Set("Content-Type", "application/json")
 	ctx.Request.Header.Set("Authorization", bearerToken)
+	ctx.Set("session_user_id", "userId")
+	ctx.Set("tokenString", token)
+
+	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock)
 
 	//act
-	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock)
 	nc.PostDevice(ctx)
 
 	//assert

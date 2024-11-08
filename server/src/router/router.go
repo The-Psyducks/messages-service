@@ -31,33 +31,32 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	r := gin.Default()
 	var rtDb repository.RealTimeDatabaseInterface
 	var users usersConnector.ConnectorInterface
+	var notificationsDB repository.DevicesDatabaseInterface
+
 	switch config {
 	case MOCK_EXTERNAL:
 		rtDb = repository.NewMockRealTimeDatabase()
 		users = usersConnector.NewMockConnector()
 		log.Println("Mocking external connections")
-		//case DEFAULT:
-		//	db = repository.NewRealTimeDatabase()
-		//	users = usersConnector.NewUsersConnector()
+		notificationsDB = repository.NewMockDevicesDatabase()
+
 	default:
 		rtDb = repository.NewRealTimeDatabase()
 		users = usersConnector.NewUsersConnector()
+		postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
+		if err != nil {
+			return nil, fmt.Errorf("error connecting to database: %v", err)
 
+		}
+		notificationsDB, err = repository.NewDevicesPersistentDatabase(postgresDB)
+		if err != nil {
+			return nil, fmt.Errorf("error preparing notifications database: %v", err)
+		}
 	}
-	postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
-	if err != nil {
-		return nil, fmt.Errorf("error connecting to database: %v", err)
-
-	}
-
-	notificationsDB, err := repository.NewDevicesPersistentDatabase(postgresDB)
 
 	ms := service.NewMessageService(rtDb, notificationsDB, users)
 	mc := controller.NewMessageController(ms)
 
-	if err != nil {
-		return nil, fmt.Errorf("error preparing notifications database: %v", err)
-	}
 	nc := controller.NewNotificationsController(users, notificationsDB)
 
 	private := r.Group("/")

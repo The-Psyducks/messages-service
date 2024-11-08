@@ -32,7 +32,7 @@ func (nc *NotificationsController) PostDevice(ctx *gin.Context) {
 		return
 	}
 	fmt.Println("Add Device Request:", req)
-	if err := nc.ds.AddDevice(userId, req.DeviceId, tokenString); err != nil {
+	if err := nc.ds.AddDevice(userId, req.DeviceId, "Bearer "+tokenString); err != nil {
 		errors.SendErrorMessage(ctx, err)
 		return
 	}
