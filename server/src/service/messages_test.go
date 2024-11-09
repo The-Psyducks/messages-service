@@ -41,12 +41,12 @@ type MockDevicesDatabase struct {
 	mock.Mock
 }
 
-func (m MockDevicesDatabase) AddDevice(id string, token string) error {
+func (m *MockDevicesDatabase) AddDevice(id string, token string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m MockDevicesDatabase) GetDevicesTokens(id string) ([]string, error) {
+func (m *MockDevicesDatabase) GetDevicesTokens(id string) ([]string, error) {
 	//TODO implement me
 	panic("implement me")
 }
