@@ -5,7 +5,7 @@ WORKDIR /home/app
 
 COPY /server/go.mod /server/go.sum ./
 RUN go mod download
-
+RUN go mod tidy
 COPY /server ./
 
 

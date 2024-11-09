@@ -36,6 +36,7 @@ func (uc *UsersConnector) CheckUserExists(id string, header string) (bool, error
 	switch resp.StatusCode {
 	case http.StatusOK:
 		return true, nil
+	//case http.Status
 	case http.StatusNotFound:
 		return false, nil
 	default:

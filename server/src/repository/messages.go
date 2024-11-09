@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
+	"firebase.google.com/go/messaging"
 	"fmt"
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
@@ -15,15 +16,71 @@ import (
 	"time"
 )
 
+type RealTimeDatabaseInterface interface {
+	SendMessage(senderId string, receiverId string, content string) (string, error)
+	GetConversations(id string) ([]string, error)
+	SendNotificationToUserDevices(devicesTokens []string, title, body string) error
+}
+
 type RealTimeDatabase struct {
 }
 
-func NewRealTimeDatabase() *RealTimeDatabase {
+func NewRealTimeDatabase() RealTimeDatabaseInterface {
 	if err := BuildFirebaseConfig(); err != nil {
 		log.Fatalln("Error building firebase config:", err)
 	}
 
 	return &RealTimeDatabase{}
+}
+
+func (db *RealTimeDatabase) sendNotification(token, title, body string) error {
+
+	ctx := context.Background()
+	conf := &firebase.Config{
+		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
+	}
+	//make opt with env vars insteaf of hardcoded path
+	opt := option.WithCredentialsFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json")
+
+	app, err := firebase.NewApp(ctx, conf, opt)
+	if err != nil {
+		log.Fatalln("Error initializing firebase app:", err)
+	}
+	client, err := app.Messaging(ctx)
+
+	if err != nil {
+		log.Fatalln("Error initializing messaging client:", err)
+	}
+
+	message := &messaging.Message{
+		Data: map[string]string{
+			"deeplink": "dale juancito mandame el deep",
+		},
+		Token: token,
+		Notification: &messaging.Notification{
+			Title: title,
+			Body:  body,
+		},
+	}
+	response, err := client.Send(ctx, message)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	fmt.Println("firebase response", response)
+
+	return nil
+
+}
+
+func (db *RealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+	for _, token := range devicesTokens {
+		if err := db.sendNotification(token, title, body); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) (string, error) {
@@ -97,7 +154,14 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 
 func (db *RealTimeDatabase) GetConversations(id string) ([]string, error) {
 	client, ctx := db.createFirebaseDbClient()
-	uri := os.Getenv("ENVIRONMENT")
+	uri := func() string {
+		env := os.Getenv("ENVIRONMENT")
+		if env == "HEROKU" {
+			return "prod/"
+		}
+		return "test/"
+	}()
+
 	ref := client.NewRef(uri)
 	var data map[string]interface{}
 	if err := ref.Get(ctx, &data); err != nil {
@@ -110,11 +174,6 @@ func (db *RealTimeDatabase) GetConversations(id string) ([]string, error) {
 		conversations = append(conversations, key)
 	}
 	return conversations, nil
-}
-
-type RealTimeDatabaseInterface interface {
-	SendMessage(senderId string, receiverId string, content string) (string, error)
-	GetConversations(id string) ([]string, error)
 }
 
 type FirebaseConfig struct {

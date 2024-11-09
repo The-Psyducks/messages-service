@@ -3,14 +3,13 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+	"messages/src/auth"   // Import your auth package
+	"messages/src/router" // Import your router package
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gin-gonic/gin"
-	"messages/src/auth"   // Import your auth package
-	"messages/src/router" // Import your router package
 )
 
 func TestSendMessageHappyPath(t *testing.T) {
@@ -18,7 +17,7 @@ func TestSendMessageHappyPath(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	// Create the router with mock configuration
-	r, err := router.NewRouter(router.MOCK_EXTERNAL) // Assuming you have this method
+	r, err := router.NewRouter(router.MOCK_EXTERNAL)
 	if err != nil {
 		t.Fatalf("could not create router: %v", err)
 	}
@@ -46,10 +45,8 @@ func TestSendMessageHappyPath(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	// Create a response recorder
 	w := httptest.NewRecorder()
 
-	// Perform the request
 	r.ServeHTTP(w, req)
 
 	// Check the status code
@@ -189,7 +186,7 @@ func TestSendMessageInvalidToken(t *testing.T) {
 		Status int    `json:"status"`
 		Detail string `json:"detail"`
 	}
-	fmt.Println("Response:", w.Body.String())
+
 	if err := json.Unmarshal(w.Body.Bytes(), &responseBody); err != nil {
 		t.Fatalf("could not unmarshal response: %v", err)
 	}
