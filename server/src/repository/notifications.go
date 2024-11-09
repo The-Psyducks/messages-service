@@ -1,85 +1,61 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
+	"context"
+	firebase "firebase.google.com/go"
+	"firebase.google.com/go/messaging"
+	"fmt"
+	"google.golang.org/api/option"
 	"log"
-	"os"
+	"messages/src/repository/messages"
 )
 
-type DevicesDatabaseInterface interface {
-	AddDevice(id string, token string) error
-	GetDevicesTokens(id string) ([]string, error)
-}
+func (db *messages.RealTimeDatabase) sendNotification(token, title, body string) error {
 
-type MockDevicesDatabase struct {
-}
-
-func (m MockDevicesDatabase) AddDevice(id string, token string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (m MockDevicesDatabase) GetDevicesTokens(id string) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func NewMockDevicesDatabase() DevicesDatabaseInterface {
-	return &MockDevicesDatabase{}
-}
-
-type DevicesPersistentDatabase struct {
-	db *sqlx.DB
-}
-
-func NewDevicesPersistentDatabase(db *sqlx.DB) (DevicesDatabaseInterface, error) {
-	if err := prepareDatabase(db); err != nil {
-		return nil, err
-	}
-	return &DevicesPersistentDatabase{db: db}, nil
-}
-
-func prepareDatabase(db *sqlx.DB) error {
-	//create notifications_db if it doesn't exist
-	query := `
-		CREATE TABLE IF NOT EXISTS devices_db`
-	if os.Getenv("ENVIRONMENT") != "HEROKU" {
-		query += `_test`
+	ctx := context.Background()
+	conf := &firebase.Config{
+		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
 	}
 
-	query += `(
-		    			user_id TEXT,
-		    			token TEXT,
-		    			PRIMARY KEY (user_id, token)
-		);
-	`
-	log.Println("Executing query: ", query)
-	_, err := db.Exec(query)
+	opt := option.WithCredentialsFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json")
+
+	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
-		return err
+		log.Fatalln("Error initializing firebase app:", err)
 	}
-	log.Println("Database created successfully")
+	client, err := app.Messaging(ctx)
+
+	if err != nil {
+		log.Fatalln("Error initializing messaging client:", err)
+	}
+
+	message := &messaging.Message{
+		Data: map[string]string{
+			"deeplink": "dale juancito mandame el deep",
+		},
+		Token: token,
+		Notification: &messaging.Notification{
+			Title: title,
+			Body:  body,
+		},
+	}
+	response, err := client.Send(ctx, message)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	fmt.Println("firebase response", response)
+
 	return nil
+
 }
 
-func (db *DevicesPersistentDatabase) AddDevice(id string, token string) error {
-	_, err := db.db.Exec(`INSERT INTO devices_db (user_id, token) VALUES ($1, $2)`, id, token)
-	return err
-}
-
-func (db *DevicesPersistentDatabase) GetDevicesTokens(id string) ([]string, error) {
-	rows, err := db.db.Query(`SELECT token FROM devices_db WHERE user_id=$1`, id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	tokens := []string{}
-	for rows.Next() {
-		var token string
-		if err := rows.Scan(&token); err != nil {
-			return nil, err
+func (db *messages.RealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+	for _, token := range devicesTokens {
+		if err := db.sendNotification(token, title, body); err != nil {
+			return err
 		}
-		tokens = append(tokens, token)
 	}
-	return tokens, nil
+	return nil
 }

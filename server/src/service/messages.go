@@ -3,18 +3,19 @@ package service
 import (
 	"log"
 	"messages/src/model/errors"
-	"messages/src/repository"
-	usersConnector "messages/src/user-connector"
+	"messages/src/repository/connectors/user-connector"
+	"messages/src/repository/devices"
+	"messages/src/repository/messages"
 	"strings"
 )
 
 type MessageService struct {
-	rtDb    repository.RealTimeDatabaseInterface
-	dDb	 	repository.DevicesDatabaseInterface
-	users 	usersConnector.ConnectorInterface
+	rtDb  messages.RealTimeDatabaseInterface
+	dDb   devices.DevicesDatabaseInterface
+	users usersConnector.usersConnector
 }
 
-func NewMessageService(rtDb repository.RealTimeDatabaseInterface, dDb repository.DevicesDatabaseInterface,users usersConnector.ConnectorInterface) *MessageService {
+func NewMessageService(rtDb messages.RealTimeDatabaseInterface, dDb devices.DevicesDatabaseInterface, users usersConnector.Interface) *MessageService {
 	return &MessageService{rtDb, dDb, users}
 }
 
@@ -47,7 +48,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 }
 
 func (ms *MessageService) GetMessages(id string) ([]string, *errors.MessageError) {
-	conversations, err := ms.rtDb.GetConversations(id)
+	conversations, err := ms.rtDb.GetConversations()
 	if err != nil {
 		return nil, errors.InternalServerError("error getting conversations: " + err.Error())
 	}

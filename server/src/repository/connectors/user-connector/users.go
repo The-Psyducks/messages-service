@@ -45,7 +45,3 @@ func (uc *UsersConnector) CheckUserExists(id string, header string) (bool, error
 
 	}
 }
-
-type ConnectorInterface interface {
-	CheckUserExists(id string, header string) (bool, error)
-}

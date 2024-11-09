@@ -144,8 +144,8 @@ func (r *RealTimeDatabaseMock) SendMessage(senderId string, receiverId string, c
 	panic("implement me")
 }
 
-func (r *RealTimeDatabaseMock) GetConversations(id string) ([]string, error) {
-	args := r.Called(id)
+func (r *RealTimeDatabaseMock) GetConversations() ([]string, error) {
+	args := r.Called()
 	if err := args.Get(1); err != nil {
 		return nil, err.(error)
 	}
@@ -197,7 +197,7 @@ func TestGetMessages(t *testing.T) {
 	ctx.Request.Header.Set("Authorization", bearerToken)
 	ctx.Request.Header.Set("Content-Type", "application/json")
 
-	realTimeDatabaseMock.On("GetConversations", "1234").Return([]string{"1234-4321", "1111-1234", "1111-1231"}, nil)
+	realTimeDatabaseMock.On("GetConversations").Return([]string{"1234-4321", "1111-1234", "1111-1231"}, nil)
 	//act
 	mc.GetMessages(ctx)
 

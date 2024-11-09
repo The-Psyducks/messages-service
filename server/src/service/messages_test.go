@@ -23,7 +23,7 @@ func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string
 	return args.String(0), args.Error(1)
 }
 
-func (m *MockDatabase) GetConversations(id string) ([]string, error) {
+func (m *MockDatabase) GetConversations() ([]string, error) {
 	return []string{"1234-5678", "1234-1111", "9999-9999"}, nil
 }
 

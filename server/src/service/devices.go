@@ -3,8 +3,8 @@ package service
 import (
 	"log"
 	"messages/src/model/errors"
-	"messages/src/repository"
-	usersConnector "messages/src/user-connector"
+	"messages/src/repository/connectors/user-connector"
+	"messages/src/repository/devices"
 )
 
 type DevicesServiceInterface interface {
@@ -12,11 +12,11 @@ type DevicesServiceInterface interface {
 }
 
 type DeviceService struct {
-	uc usersConnector.ConnectorInterface
-	db repository.DevicesDatabaseInterface
+	uc usersConnector.usersConnector
+	db devices.DevicesDatabaseInterface
 }
 
-func NewDeviceService(uc usersConnector.ConnectorInterface, db repository.DevicesDatabaseInterface) *DeviceService {
+func NewDeviceService(uc usersConnector.Interface, db devices.DevicesDatabaseInterface) *DeviceService {
 	return &DeviceService{uc: uc, db: db}
 }
 

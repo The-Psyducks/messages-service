@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
 	"messages/src/auth"
-	usersConnector "messages/src/user-connector"
+	"messages/src/repository/connectors/user-connector"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,7 +20,7 @@ func (m *mockConnector) CheckUserExists(userId, deviceToken string) (bool, error
 	return args.Bool(0), args.Error(1)
 }
 
-var _ usersConnector.ConnectorInterface = (*mockConnector)(nil)
+var _ usersConnector.usersConnector = (*mockConnector)(nil)
 
 type mockDatabase struct {
 	mock.Mock

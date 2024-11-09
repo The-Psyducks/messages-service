@@ -1,12 +1,14 @@
 package usersConnector
 
-import "errors"
+import (
+	"errors"
+)
 
 type MockConnector struct {
 	// Add fields as needed to simulate behavior
 }
 
-func NewMockConnector() ConnectorInterface {
+func NewMockConnector() Interface {
 	return &MockConnector{}
 }
 

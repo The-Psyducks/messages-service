@@ -1,8 +1,14 @@
-package repository
+package messages
 
-import "errors"
+import (
+	"errors"
+)
 
 type MockRealTimeDatabase struct {
+}
+
+func NewMockRealTimeDatabase() RealTimeDatabaseInterface {
+	return &MockRealTimeDatabase{}
 }
 
 func (m *MockRealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
@@ -15,10 +21,6 @@ func (m *MockRealTimeDatabase) SendNotification(token string) error {
 	panic("implement me")
 }
 
-func NewMockRealTimeDatabase() RealTimeDatabaseInterface {
-	return &MockRealTimeDatabase{}
-}
-
 func (m *MockRealTimeDatabase) SendMessage(senderId, receiverId, content string) (string, error) {
 	if content == "error" {
 		return "", errors.New("throwing error in mock")
@@ -26,6 +28,6 @@ func (m *MockRealTimeDatabase) SendMessage(senderId, receiverId, content string)
 	return "mockMessageRef", nil
 }
 
-func (m *MockRealTimeDatabase) GetConversations(id string) ([]string, error) {
+func (m *MockRealTimeDatabase) GetConversations() ([]string, error) {
 	panic("implement me")
 }
