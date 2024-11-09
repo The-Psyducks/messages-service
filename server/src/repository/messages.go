@@ -58,8 +58,8 @@ func (db *RealTimeDatabase) sendNotification(token, title, body string) error {
 		},
 		Token: token,
 		Notification: &messaging.Notification{
-			Title:    title,
-			Body:     body,
+			Title: title,
+			Body:  body,
 		},
 	}
 	response, err := client.Send(ctx, message)
@@ -154,7 +154,14 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 
 func (db *RealTimeDatabase) GetConversations(id string) ([]string, error) {
 	client, ctx := db.createFirebaseDbClient()
-	uri := os.Getenv("ENVIRONMENT")
+	uri := func() string {
+		env := os.Getenv("ENVIRONMENT")
+		if env == "HEROKU" {
+			return "prod/"
+		}
+		return "test/"
+	}()
+
 	ref := client.NewRef(uri)
 	var data map[string]interface{}
 	if err := ref.Get(ctx, &data); err != nil {
