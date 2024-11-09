@@ -2,8 +2,8 @@ package service
 
 import (
 	"log"
+	users_connector "messages/src/connectors/users-connector"
 	"messages/src/model/errors"
-	"messages/src/repository/connectors/user-connector"
 	"messages/src/repository/devices"
 	"messages/src/repository/messages"
 	"strings"
@@ -12,10 +12,10 @@ import (
 type MessageService struct {
 	rtDb  messages.RealTimeDatabaseInterface
 	dDb   devices.DevicesDatabaseInterface
-	users usersConnector.usersConnector
+	users users_connector.Interface
 }
 
-func NewMessageService(rtDb messages.RealTimeDatabaseInterface, dDb devices.DevicesDatabaseInterface, users usersConnector.Interface) *MessageService {
+func NewMessageService(rtDb messages.RealTimeDatabaseInterface, dDb devices.DevicesDatabaseInterface, users users_connector.Interface) *MessageService {
 	return &MessageService{rtDb, dDb, users}
 }
 

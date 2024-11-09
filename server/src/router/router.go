@@ -5,9 +5,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
+	"messages/src/connectors/users-connector"
 	"messages/src/controller"
 	"messages/src/middleware"
-	usersConnector2 "messages/src/repository/connectors/user-connector"
 	"messages/src/repository/devices"
 	"messages/src/repository/messages"
 	"messages/src/service"
@@ -30,19 +30,19 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 
 	r := gin.Default()
 	var messagesDB messages.RealTimeDatabaseInterface
-	var usersConnector usersConnector2.Interface
+	var usersConnector users_connector.Interface
 	var devicesDB devices.DevicesDatabaseInterface
 
 	switch config {
 	case MOCK_EXTERNAL:
 		messagesDB = messages.NewMockRealTimeDatabase()
-		usersConnector = usersConnector2.NewMockConnector()
+		usersConnector = users_connector.NewMockConnector()
 		log.Println("Mocking external connections")
 		devicesDB = devices.NewMockDevicesDatabase()
 
 	default:
 		messagesDB = messages.NewRealTimeDatabase()
-		usersConnector = usersConnector2.NewUsersConnector()
+		usersConnector = users_connector.NewUsersConnector()
 		postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to database: %v", err)

@@ -3,9 +3,11 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"messages/src/connectors/users-connector"
+
 	"messages/src/model"
 	"messages/src/model/errors"
-	"messages/src/repository/connectors/user-connector"
+
 	"messages/src/repository/devices"
 	"messages/src/service"
 )
@@ -15,7 +17,7 @@ type NotificationsController struct {
 }
 
 func NewNotificationsController(
-	uc usersConnector.usersConnector,
+	uc users_connector.Interface,
 	db devices.DevicesDatabaseInterface) *NotificationsController {
 	ds := service.NewDeviceService(uc, db)
 	return &NotificationsController{ds}

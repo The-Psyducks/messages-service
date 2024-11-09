@@ -1,4 +1,4 @@
-package usersConnector
+package users_connector
 
 import (
 	"errors"
