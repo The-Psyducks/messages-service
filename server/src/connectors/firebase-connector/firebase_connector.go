@@ -1,4 +1,4 @@
-package firebases_connector
+package firebase_connector
 
 import (
 	"context"
@@ -10,6 +10,10 @@ import (
 )
 
 type FirebaseConnector struct{}
+
+func NewFirebaseConnector() *FirebaseConnector {
+	return &FirebaseConnector{}
+}
 
 func (fc *FirebaseConnector) sendNotification(token, title, body string) error {
 

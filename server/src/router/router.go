@@ -6,14 +6,15 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
+	firebaseConnector "messages/src/connectors/firebase-connector"
 	usersConnector "messages/src/connectors/users-connector"
-	messagesController "messages/src/controller/messages"
-	notificationsController "messages/src/controller/notifications"
+	controllerMessages "messages/src/controller/messages"
+	controllerNotifications "messages/src/controller/notifications"
 	"messages/src/middleware"
-	devicesRepository "messages/src/repository/devices"
-	messagesRepository "messages/src/repository/messages"
-	messageService "messages/src/service/messages"
-	notificationsService "messages/src/service/notifications"
+	repositoryDevices "messages/src/repository/devices"
+	repositoryMessages "messages/src/repository/messages"
+	serviceMessages "messages/src/service/messages"
+	serviceNotifications "messages/src/service/notifications"
 	"os"
 )
 
@@ -30,44 +31,45 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	log.Println("Creating router...")
 
 	r := gin.Default()
-	var messagesDB messagesRepository.RealTimeDatabaseInterface
+	var messagesDB repositoryMessages.RealTimeDatabaseInterface
 	var usersConn usersConnector.Interface
-	var devicesDB devicesRepository.DevicesDatabaseInterface
+	var devicesDB repositoryDevices.DevicesDatabaseInterface
 
 	switch config {
 	case MOCK_EXTERNAL:
-		messagesDB = messagesRepository.NewMockRealTimeDatabase()
+		messagesDB = repositoryMessages.NewMockRealTimeDatabase()
 		usersConn = usersConnector.NewMockConnector()
 		log.Println("Mocking external connections")
-		devicesDB = devicesRepository.NewMockDevicesDatabase()
+		devicesDB = repositoryDevices.NewMockDevicesDatabase()
 
 	default:
-		messagesDB = messagesRepository.NewRealTimeDatabase()
+		messagesDB = repositoryMessages.NewRealTimeDatabase()
 		usersConn = usersConnector.NewUsersConnector()
 		postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to database: %v", err)
 
 		}
-		devicesDB, err = devicesRepository.NewDevicesPersistentDatabase(postgresDB)
+		devicesDB, err = repositoryDevices.NewDevicesPersistentDatabase(postgresDB)
 		if err != nil {
 			return nil, fmt.Errorf("error preparing notifications database: %v", err)
 		}
 	}
 
-	messageServ := messageService.NewMessageService(messagesDB, devicesDB, usersConn)
-	messagesContr := messagesController.NewMessageController(messageServ)
+	messageService := serviceMessages.NewMessageService(messagesDB, devicesDB, usersConn)
+	messagesController := controllerMessages.NewMessageController(messageService)
 
-	notificationServ := notificationsService.NewNotificationService(devicesDB, usersConn)
-	notificationsContr := notificationsController.NewNotificationsController(usersConn, devicesDB, notificationServ)
+	fbConnector := firebaseConnector.NewFirebaseConnector()
+	notificationService := serviceNotifications.NewNotificationService(devicesDB, usersConn, fbConnector)
+	notificationsController := controllerNotifications.NewNotificationsController(usersConn, devicesDB, notificationService)
 
 	private := r.Group("/")
 	private.Use(middleware.AuthMiddleware())
 	{
-		private.GET("/messages", messagesContr.GetMessages)
-		private.POST("/messages", messagesContr.SendMessage)
-		private.POST("/device", notificationsContr.PostDevice)
-		private.POST("/notification", notificationsContr.SendNotification)
+		private.GET("/messages", messagesController.GetMessages)
+		private.POST("/messages", messagesController.SendMessage)
+		private.POST("/device", notificationsController.PostDevice)
+		private.POST("/notification", notificationsController.SendNotification)
 	}
 
 	return r, nil

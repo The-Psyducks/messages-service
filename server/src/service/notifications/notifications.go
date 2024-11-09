@@ -8,9 +8,9 @@ import (
 )
 
 type NotificationService struct {
-	devicesDB         repository.DevicesDatabaseInterface
-	usersConnector    usersConnector.Interface
-	firebaseConnector firebaseConnector.Interface
+	devicesDB      repository.DevicesDatabaseInterface
+	usersConnector usersConnector.Interface
+	fbConnector    firebaseConnector.Interface
 }
 
 func (ns NotificationService) SendNotification(receiverId, title, body, authHeader string) *modelErrors.MessageError {
@@ -29,15 +29,16 @@ func (ns NotificationService) SendNotification(receiverId, title, body, authHead
 		return modelErrors.InternalServerError("error getting devices tokens: " + err.Error())
 	}
 
-	if err := ns.firebaseConnector.SendNotificationToUserDevices(devicesTokens, title, body); err != nil {
+	if err := ns.fbConnector.SendNotificationToUserDevices(devicesTokens, title, body); err != nil {
 		return modelErrors.InternalServerError("error sending notification: " + err.Error())
 	}
 	return nil
 }
 
-func NewNotificationService(devicesDB repository.DevicesDatabaseInterface, usersConnector usersConnector.Interface) NotificationsServiceInterface {
+func NewNotificationService(devicesDB repository.DevicesDatabaseInterface, usersConnector usersConnector.Interface, fbConnector firebaseConnector.Interface) NotificationsServiceInterface {
 	return &NotificationService{
 		devicesDB:      devicesDB,
 		usersConnector: usersConnector,
+		fbConnector:    fbConnector,
 	}
 }

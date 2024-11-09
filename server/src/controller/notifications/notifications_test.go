@@ -37,10 +37,20 @@ func (m *mockDatabase) AddDevice(id string, token string) error {
 	return nil
 }
 
+type mockFirebaseConnector struct {
+	mock.Mock
+}
+
+func (m *mockFirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func TestAddDeviceForUser(t *testing.T) {
 	//arrange
 	usersConnectorMock := new(mockConnector)
 	devicesDatabaseMock := new(mockDatabase)
+	firebaseConnectorMock := new(mockFirebaseConnector)
 	token, _ := auth.GenerateToken("userId", "username", false)
 	bearerToken := "Bearer " + token
 	usersConnectorMock.On("CheckUserExists", "userId", bearerToken).Return(true, nil)
@@ -57,7 +67,7 @@ func TestAddDeviceForUser(t *testing.T) {
 	ctx.Set("session_user_id", "userId")
 	ctx.Set("tokenString", token)
 
-	ns := notificationServices.NewNotificationService(devicesDatabaseMock, usersConnectorMock)
+	ns := notificationServices.NewNotificationService(devicesDatabaseMock, usersConnectorMock, firebaseConnectorMock)
 
 	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock, ns)
 
