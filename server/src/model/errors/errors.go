@@ -1,4 +1,4 @@
-package errors
+package modelErrors
 
 import (
 	"github.com/gin-gonic/gin"

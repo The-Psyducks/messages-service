@@ -1,11 +1,11 @@
-package controller
+package messages
 
 import (
 	"log"
 	"messages/src/auth"
 	"messages/src/model"
 	"messages/src/model/errors"
-	"messages/src/service"
+	service "messages/src/service/messages"
 	"net/http"
 	"strings"
 
@@ -26,7 +26,7 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 
 	var req model.MessageRequest
 	if err := ctx.BindJSON(&req); err != nil {
-		errors.SendErrorMessage(ctx, errors.BadRequestError("Error Binding Request: "+err.Error()))
+		modelErrors.SendErrorMessage(ctx, modelErrors.BadRequestError("Error Binding Request: "+err.Error()))
 		return
 	}
 	log.Println("Received Message Request: ", req)
@@ -36,14 +36,14 @@ func (mc *MessageController) SendMessage(ctx *gin.Context) {
 
 	claims, err := auth.ValidateToken(token)
 	if err != nil {
-		errors.SendErrorMessage(ctx, errors.AuthenticationError("Bad token reached controller"))
+		modelErrors.SendErrorMessage(ctx, modelErrors.AuthenticationError("Bad token reached controller"))
 		return
 	}
 	senderId := claims.UserId
 
 	ref, er := mc.MessageService.SendMessage(senderId, req.ReceiverId, req.Content, authHeader)
 	if er != nil {
-		errors.SendErrorMessage(ctx, er)
+		modelErrors.SendErrorMessage(ctx, er)
 		return
 	}
 	sendMessageDeliveredResponse(ctx, ref)
@@ -57,7 +57,7 @@ func (mc *MessageController) GetMessages(ctx *gin.Context) {
 	userId := claims.UserId
 	conversationReferences, err := mc.MessageService.GetMessages(userId)
 	if err != nil {
-		errors.SendErrorMessage(ctx, err)
+		modelErrors.SendErrorMessage(ctx, err)
 		return
 	}
 	sendGetMessagesResponse(ctx, conversationReferences)
@@ -71,19 +71,4 @@ func sendGetMessagesResponse(ctx *gin.Context, references []string) {
 func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {
 	data := model.MessageDeliveredResponse{ChatReference: ref}
 	ctx.JSON(http.StatusOK, data)
-}
-
-func (mc *MessageController) SendNotication(ctx *gin.Context) {
-	var notificationRequest model.NotificationRequest
-	if err := ctx.BindJSON(&notificationRequest); err != nil {
-		errors.SendErrorMessage(ctx, errors.BadRequestError("Error Binding Request: "+err.Error()))
-		return
-	}
-	log.Println("Received Notification Request: ", notificationRequest)
-	
-	err := mc.MessageService.SendNotification(notificationRequest.ReceiverId, notificationRequest.Title, notificationRequest.Body)
-	if err != nil {
-		errors.SendErrorMessage(ctx, err)
-		return
-	}
 }

@@ -1,4 +1,4 @@
-package controller
+package messages
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"messages/src/auth"
 	"messages/src/model"
 	"messages/src/model/errors"
-	"messages/src/service"
+	service "messages/src/service/messages"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,20 +21,20 @@ type MockMessageService struct {
 	mock.Mock
 }
 
-func (m *MockMessageService) SendNotification(receiver, title, body string) *errors.MessageError {
+func (m *MockMessageService) SendNotification(receiver, title, body string) *modelErrors.MessageError {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m *MockMessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError) {
+func (m *MockMessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *modelErrors.MessageError) {
 	args := m.Called(senderId, receiverId, content, authHeader)
 	if err := args.Get(0); err != nil {
-		return "", err.(*errors.MessageError)
+		return "", err.(*modelErrors.MessageError)
 	}
 	return "", nil
 }
 
-func (m *MockMessageService) GetMessages(id string) ([]string, *errors.MessageError) {
+func (m *MockMessageService) GetMessages(id string) ([]string, *modelErrors.MessageError) {
 	panic("implement me")
 }
 
@@ -113,7 +113,7 @@ func TestSendMessage_ServiceError(t *testing.T) {
 	controller := NewMessageController(mockService)
 
 	reqBody := model.MessageRequest{ReceiverId: "456", Content: "Hello"}
-	expectedErr := errors.BadRequestError("Service error") // Simulate an error returned by the service
+	expectedErr := modelErrors.BadRequestError("Service error") // Simulate an error returned by the service
 	mockService.On("SendMessage", "123", "456", "Hello", bearerToken).Return(expectedErr)
 
 	// Prepare the request

@@ -1,5 +1,5 @@
 // coverage:ignore
-package messages
+package repository
 
 import (
 	"context"
@@ -215,11 +215,11 @@ func (db *RealTimeDatabase) sendNotification(token, title, body string) error {
 
 }
 
-func (db *RealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
-	for _, token := range devicesTokens {
-		if err := db.sendNotification(token, title, body); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+//func (db *RealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+//	for _, token := range devicesTokens {
+//		if err := db.sendNotification(token, title, body); err != nil {
+//			return err
+//		}
+//	}
+//	return nil
+//}

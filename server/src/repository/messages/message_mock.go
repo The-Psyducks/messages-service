@@ -1,4 +1,4 @@
-package messages
+package repository
 
 import (
 	"errors"
@@ -9,11 +9,6 @@ type MockRealTimeDatabase struct {
 
 func NewMockRealTimeDatabase() RealTimeDatabaseInterface {
 	return &MockRealTimeDatabase{}
-}
-
-func (m *MockRealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (m *MockRealTimeDatabase) SendNotification(token string) error {

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"messages/src/auth"
 	users_connector "messages/src/connectors/users-connector"
+	notificationServices "messages/src/service/notifications"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -56,7 +57,9 @@ func TestAddDeviceForUser(t *testing.T) {
 	ctx.Set("session_user_id", "userId")
 	ctx.Set("tokenString", token)
 
-	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock)
+	ns := notificationServices.NewNotificationService(devicesDatabaseMock, usersConnectorMock)
+
+	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock, ns)
 
 	//act
 	nc.PostDevice(ctx)

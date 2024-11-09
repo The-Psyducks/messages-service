@@ -1,4 +1,4 @@
-package devices
+package repository
 
 type DevicesDatabaseInterface interface {
 	AddDevice(id string, token string) error

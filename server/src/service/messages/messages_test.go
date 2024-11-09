@@ -4,18 +4,13 @@ import (
 	goErrors "errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"messages/src/model/errors"
+	modelErrors "messages/src/model/errors"
 	"testing"
 )
 
 // Mock for RealTimeDatabaseInterface
 type MockDatabase struct {
 	mock.Mock
-}
-
-func (m *MockDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string, error) {
@@ -94,7 +89,7 @@ func TestSendMessage_SenderExternalServiceError(t *testing.T) {
 	dDbMock := new(MockDevicesDatabase)
 	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
 
-	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(false, errors.ExternalServiceError("external service error"))
+	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(false, modelErrors.ExternalServiceError("external service error"))
 
 	ref, err := service.SendMessage("existing_user_1", "existing_user_2", "Hello, World!", "Bearer token")
 
@@ -130,7 +125,7 @@ func TestSendMessage_ReceiverExternalServiceError(t *testing.T) {
 	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
 
 	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(true, nil)
-	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").Return(false, errors.ExternalServiceError("external service error"))
+	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").Return(false, modelErrors.ExternalServiceError("external service error"))
 
 	ref, err := service.SendMessage("existing_user_1", "existing_user_2", "Hello, World!", "Bearer token")
 

@@ -2,18 +2,19 @@ package router
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
-	"messages/src/connectors/users-connector"
-	"messages/src/controller"
+	usersConnector "messages/src/connectors/users-connector"
+	messagesController "messages/src/controller/messages"
+	notificationsController "messages/src/controller/notifications"
 	"messages/src/middleware"
-	"messages/src/repository/devices"
-	"messages/src/repository/messages"
-	"messages/src/service"
+	devicesRepository "messages/src/repository/devices"
+	messagesRepository "messages/src/repository/messages"
+	messageService "messages/src/service/messages"
+	notificationsService "messages/src/service/notifications"
 	"os"
-
-	"github.com/gin-gonic/gin"
 )
 
 type ConfigurationType int
@@ -29,43 +30,44 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	log.Println("Creating router...")
 
 	r := gin.Default()
-	var messagesDB messages.RealTimeDatabaseInterface
-	var usersConnector users_connector.Interface
-	var devicesDB devices.DevicesDatabaseInterface
+	var messagesDB messagesRepository.RealTimeDatabaseInterface
+	var usersConn usersConnector.Interface
+	var devicesDB devicesRepository.DevicesDatabaseInterface
 
 	switch config {
 	case MOCK_EXTERNAL:
-		messagesDB = messages.NewMockRealTimeDatabase()
-		usersConnector = users_connector.NewMockConnector()
+		messagesDB = messagesRepository.NewMockRealTimeDatabase()
+		usersConn = usersConnector.NewMockConnector()
 		log.Println("Mocking external connections")
-		devicesDB = devices.NewMockDevicesDatabase()
+		devicesDB = devicesRepository.NewMockDevicesDatabase()
 
 	default:
-		messagesDB = messages.NewRealTimeDatabase()
-		usersConnector = users_connector.NewUsersConnector()
+		messagesDB = messagesRepository.NewRealTimeDatabase()
+		usersConn = usersConnector.NewUsersConnector()
 		postgresDB, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
 		if err != nil {
 			return nil, fmt.Errorf("error connecting to database: %v", err)
 
 		}
-		devicesDB, err = devices.NewDevicesPersistentDatabase(postgresDB)
+		devicesDB, err = devicesRepository.NewDevicesPersistentDatabase(postgresDB)
 		if err != nil {
 			return nil, fmt.Errorf("error preparing notifications database: %v", err)
 		}
 	}
 
-	messageService := service.NewMessageService(messagesDB, devicesDB, usersConnector)
-	messageController := controller.NewMessageController(messageService)
+	messageServ := messageService.NewMessageService(messagesDB, devicesDB, usersConn)
+	messagesContr := messagesController.NewMessageController(messageServ)
 
-	notificationsController := controller.NewNotificationsController(usersConnector, devicesDB)
+	notificationServ := notificationsService.NewNotificationService(devicesDB, usersConn)
+	notificationsContr := notificationsController.NewNotificationsController(usersConn, devicesDB, notificationServ)
 
 	private := r.Group("/")
 	private.Use(middleware.AuthMiddleware())
 	{
-		private.GET("/messages", messageController.GetMessages)
-		private.POST("/messages", messageController.SendMessage)
-		private.POST("/device", notificationsController.PostDevice)
-		private.POST("/notification", messageController.SendNotication)
+		private.GET("/messages", messagesContr.GetMessages)
+		private.POST("/messages", messagesContr.SendMessage)
+		private.POST("/device", notificationsContr.PostDevice)
+		private.POST("/notification", notificationsContr.SendNotification)
 	}
 
 	return r, nil
