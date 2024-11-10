@@ -41,7 +41,7 @@ type mockFirebaseConnector struct {
 	mock.Mock
 }
 
-func (m *mockFirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+func (m *mockFirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string, data map[string]string) error {
 	//TODO implement me
 	panic("implement me")
 }

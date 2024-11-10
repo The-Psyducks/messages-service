@@ -134,10 +134,10 @@ type RealTimeDatabaseMock struct {
 	mock.Mock
 }
 
-func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
-	//TODO implement me
-	panic("implement me")
-}
+//func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+//	//TODO implement me
+//	panic("implement me")
+//}
 
 func (r *RealTimeDatabaseMock) SendMessage(senderId string, receiverId string, content string) (string, error) {
 	//TODO implement me
@@ -190,7 +190,7 @@ func TestGetMessages(t *testing.T) {
 	realTimeDatabaseMock := new(RealTimeDatabaseMock)
 	usersConnectorMock := new(UsersConnectorMock)
 	dDbMock := new(MockDevicesDatabase)
-	messageService := service.NewMessageService(realTimeDatabaseMock, dDbMock, usersConnectorMock)
+	messageService := service.NewMessageService(realTimeDatabaseMock, dDbMock, usersConnectorMock, nil)
 	mc := NewMessageController(messageService)
 
 	ctx.Request = httptest.NewRequest(http.MethodGet, "/messages", nil)

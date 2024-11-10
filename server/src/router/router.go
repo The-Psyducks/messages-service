@@ -56,12 +56,12 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 		}
 	}
 
-	messageService := serviceMessages.NewMessageService(messagesDB, devicesDB, usersConn)
-	messagesController := controllerMessages.NewMessageController(messageService)
-
 	fbConnector := firebaseConnector.NewFirebaseConnector()
 	notificationService := serviceNotifications.NewNotificationService(devicesDB, usersConn, fbConnector)
 	notificationsController := controllerNotifications.NewNotificationsController(usersConn, devicesDB, notificationService)
+
+	messageService := serviceMessages.NewMessageService(messagesDB, devicesDB, usersConn, notificationService)
+	messagesController := controllerMessages.NewMessageController(messageService)
 
 	private := r.Group("/")
 	private.Use(middleware.AuthMiddleware())
@@ -70,6 +70,8 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 		private.POST("/messages", messagesController.SendMessage)
 		private.POST("/device", notificationsController.PostDevice)
 		private.POST("/notification", notificationsController.SendNotification)
+		private.POST("/notification/followers-milestone", notificationsController.SendFollowerMilestoneNotification)
+
 	}
 
 	return r, nil

@@ -51,7 +51,7 @@ func TestSendMessage_HappyPath(t *testing.T) {
 	dDbMock := new(MockDevicesDatabase)
 	mockUserConnector := new(MockUserConnector)
 	expectedRef := "messageRef123"
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 
 	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(true, nil)
 	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").Return(true, nil)
@@ -70,7 +70,7 @@ func TestSendMessage_SenderValidationFails(t *testing.T) {
 	mockDB := new(MockDatabase)
 	dDbMock := new(MockDevicesDatabase)
 	mockUserConnector := new(MockUserConnector)
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 
 	mockUserConnector.On("CheckUserExists", "nonexistent_user", "Bearer token").Return(false, nil)
 
@@ -87,7 +87,7 @@ func TestSendMessage_SenderExternalServiceError(t *testing.T) {
 	mockDB := new(MockDatabase)
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 
 	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(false, modelErrors.ExternalServiceError("external service error"))
 
@@ -104,7 +104,7 @@ func TestSendMessage_ReceiverValidationFails(t *testing.T) {
 	mockDB := new(MockDatabase)
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 
 	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(true, nil)
 	mockUserConnector.On("CheckUserExists", "nonexistent_user", "Bearer token").Return(false, nil)
@@ -122,7 +122,7 @@ func TestSendMessage_ReceiverExternalServiceError(t *testing.T) {
 	mockDB := new(MockDatabase)
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 
 	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(true, nil)
 	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").Return(false, modelErrors.ExternalServiceError("external service error"))
@@ -140,7 +140,7 @@ func TestSendMessage_FailsToPushMessage(t *testing.T) {
 	mockDB := new(MockDatabase)
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 
 	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(true, nil)
 	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").Return(true, nil)
@@ -162,7 +162,7 @@ func TestGetMessagesHappyPath(t *testing.T) {
 	mockDB := new(MockDatabase)
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
 	//mockDB.On("GetConversations", "1234").Return([]string{"1234-5678", "1234-1111", "9999-9999"}, nil)
 
 	//act

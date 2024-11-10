@@ -15,7 +15,7 @@ func NewFirebaseConnector() *FirebaseConnector {
 	return &FirebaseConnector{}
 }
 
-func (fc *FirebaseConnector) sendNotification(token, title, body string) error {
+func (fc *FirebaseConnector) sendNotification(token, title, body string, data map[string]string) error {
 
 	ctx := context.Background()
 	conf := &firebase.Config{
@@ -35,9 +35,10 @@ func (fc *FirebaseConnector) sendNotification(token, title, body string) error {
 	}
 
 	message := &messaging.Message{
-		Data: map[string]string{
-			"deeplink": "dale juancito mandame el deep",
-		},
+		//Data: map[string]string{
+		//	"deeplink": deeplink,
+		//},
+		Data:  data,
 		Token: token,
 		Notification: &messaging.Notification{
 			Title: title,
@@ -56,9 +57,9 @@ func (fc *FirebaseConnector) sendNotification(token, title, body string) error {
 
 }
 
-func (fc *FirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+func (fc *FirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string, data map[string]string) error {
 	for _, token := range devicesTokens {
-		if err := fc.sendNotification(token, title, body); err != nil {
+		if err := fc.sendNotification(token, title, body, data); err != nil {
 			return err
 		}
 	}

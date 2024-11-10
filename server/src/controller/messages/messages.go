@@ -60,6 +60,7 @@ func (mc *MessageController) GetMessages(ctx *gin.Context) {
 		modelErrors.SendErrorMessage(ctx, err)
 		return
 	}
+
 	sendGetMessagesResponse(ctx, conversationReferences)
 }
 

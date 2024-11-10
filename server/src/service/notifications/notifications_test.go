@@ -38,7 +38,7 @@ type MockFirebaseConnector struct {
 	mock.Mock
 }
 
-func (m *MockFirebaseConnector) SendNotificationToUserDevices(tokens []string, title, body string) error {
+func (m *MockFirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string, data map[string]string) error {
 	args := m.Called(tokens, title, body)
 	return args.Error(0)
 }

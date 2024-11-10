@@ -6,18 +6,30 @@ import (
 	"messages/src/model/errors"
 	repository "messages/src/repository/devices"
 	messagesRepository "messages/src/repository/messages"
+	serviceNotifications "messages/src/service/notifications"
 
 	"strings"
 )
 
 type MessageService struct {
-	rtDb  messagesRepository.RealTimeDatabaseInterface
-	dDb   repository.DevicesDatabaseInterface
-	users usersConnector.Interface
+	rtDb                 messagesRepository.RealTimeDatabaseInterface
+	dDb                  repository.DevicesDatabaseInterface
+	users                usersConnector.Interface
+	notificationsService serviceNotifications.NotificationsServiceInterface
 }
 
-func NewMessageService(rtDb messagesRepository.RealTimeDatabaseInterface, dDb repository.DevicesDatabaseInterface, users usersConnector.Interface) *MessageService {
-	return &MessageService{rtDb, dDb, users}
+func NewMessageService(
+	rtDb messagesRepository.RealTimeDatabaseInterface,
+	dDb repository.DevicesDatabaseInterface,
+	users usersConnector.Interface,
+	notificationsService serviceNotifications.NotificationsServiceInterface,
+) *MessageService {
+	return &MessageService{
+		rtDb,
+		dDb,
+		users,
+		notificationsService,
+	}
 }
 
 func (ms *MessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *modelErrors.MessageError) {
@@ -44,6 +56,9 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 
 	if err != nil {
 		return "", modelErrors.InternalServerError("error sending message: " + err.Error())
+	}
+	if err := ms.notificationsService.SendNewMessageNotification(receiverId, senderId, content, ""); err != nil {
+		return "", err
 	}
 	return ref, nil
 }

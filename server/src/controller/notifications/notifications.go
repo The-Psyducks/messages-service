@@ -56,10 +56,27 @@ func (nc *NotificationsController) SendNotification(ctx *gin.Context) {
 		return
 	}
 	log.Println("Received Notification Request: ", notificationRequest)
-	authHeader := ctx.GetHeader("Authorization")
+	tokenString := ctx.GetString("tokenString")
+	authHeader := "Bearer " + tokenString
 	err := nc.NotificationsService.SendNotification(notificationRequest.ReceiverId, notificationRequest.Title, notificationRequest.Body, authHeader)
 	if err != nil {
 		modelErrors.SendErrorMessage(ctx, err)
 		return
 	}
+}
+
+func (nc *NotificationsController) SendFollowerMilestoneNotification(ctx *gin.Context) {
+	var notificationRequest model.UserFollowerMilestoneNotificationRequest
+	if err := ctx.BindJSON(&notificationRequest); err != nil {
+		modelErrors.SendErrorMessage(ctx, modelErrors.BadRequestError("Error Binding Request: "+err.Error()))
+		return
+	}
+	tokenString := ctx.GetString("tokenString")
+	authHeader := "Bearer " + tokenString
+	if err := nc.NotificationsService.SendFollowerMilestoneNotification(notificationRequest.UserId, notificationRequest.Followers, authHeader); err != nil {
+		modelErrors.SendErrorMessage(ctx, err)
+	}
+
+	ctx.Status(204)
+	return
 }
