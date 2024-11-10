@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"messages/src/connectors/users-connector"
 	modelErrors "messages/src/model/errors"
 	devicesService "messages/src/service/devices"
@@ -46,23 +45,6 @@ func (nc *NotificationsController) PostDevice(ctx *gin.Context) {
 	}
 
 	ctx.Status(200)
-}
-
-func (nc *NotificationsController) SendNotification(ctx *gin.Context) {
-	var notificationRequest model.NotificationRequest
-
-	if err := ctx.BindJSON(&notificationRequest); err != nil {
-		modelErrors.SendErrorMessage(ctx, modelErrors.BadRequestError("Error Binding Request: "+err.Error()))
-		return
-	}
-	log.Println("Received Notification Request: ", notificationRequest)
-	tokenString := ctx.GetString("tokenString")
-	authHeader := "Bearer " + tokenString
-	err := nc.NotificationsService.SendNotification(notificationRequest.ReceiverId, notificationRequest.Title, notificationRequest.Body, authHeader)
-	if err != nil {
-		modelErrors.SendErrorMessage(ctx, err)
-		return
-	}
 }
 
 func (nc *NotificationsController) SendFollowerMilestoneNotification(ctx *gin.Context) {

@@ -66,25 +66,3 @@ func (ns *NotificationService) SendFollowerMilestoneNotification(userId string, 
 	}
 	return nil
 }
-
-func (ns *NotificationService) SendNotification(receiverId, title, body, authHeader string) *modelErrors.MessageError {
-
-	receiverExists, err := ns.usersConnector.CheckUserExists(receiverId, authHeader)
-	if err != nil {
-		return modelErrors.ExternalServiceError("error checking user existence: " + err.Error())
-	}
-
-	if !receiverExists {
-		return modelErrors.ValidationError("receiver does not exist")
-	}
-
-	devicesTokens, err := ns.devicesDB.GetDevicesTokens(receiverId)
-	if err != nil {
-		return modelErrors.InternalServerError("error getting devices tokens: " + err.Error())
-	}
-
-	if err := ns.fbConnector.SendNotificationToUserDevices(devicesTokens, title, body, nil); err != nil {
-		return modelErrors.InternalServerError("error sending notification: " + err.Error())
-	}
-	return nil
-}
