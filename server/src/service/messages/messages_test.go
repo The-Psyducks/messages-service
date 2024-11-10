@@ -46,16 +46,36 @@ func (m *MockDevicesDatabase) GetDevicesTokens(id string) ([]string, error) {
 	panic("implement me")
 }
 
+type MockNotificationsService struct {
+	mock.Mock
+}
+
+func (m *MockNotificationsService) SendNewMessageNotification(receiverId, senderId, content, chatReference string) *modelErrors.MessageError {
+	_ = m.Called(receiverId, senderId, content, chatReference)
+	return nil
+}
+
+func (m *MockNotificationsService) SendFollowerMilestoneNotification(userId, followers, authHeader string) *modelErrors.MessageError {
+	//TODO implement me
+	panic("implement me")
+}
+
 func TestSendMessage_HappyPath(t *testing.T) {
 	mockDB := new(MockDatabase)
 	dDbMock := new(MockDevicesDatabase)
 	mockUserConnector := new(MockUserConnector)
 	expectedRef := "messageRef123"
-	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+	mockNotificationService := new(MockNotificationsService)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, mockNotificationService)
 
-	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").Return(true, nil)
-	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").Return(true, nil)
-	mockDB.On("SendMessage", "existing_user_1", "existing_user_2", "Hello, World!").Return(expectedRef, nil)
+	mockUserConnector.On("CheckUserExists", "existing_user_1", "Bearer token").
+		Return(true, nil)
+	mockUserConnector.On("CheckUserExists", "existing_user_2", "Bearer token").
+		Return(true, nil)
+	mockDB.On("SendMessage", "existing_user_1", "existing_user_2", "Hello, World!").
+		Return(expectedRef, nil)
+	mockNotificationService.On("SendNewMessageNotification", "existing_user_2", "existing_user_1", "Hello, World!", expectedRef).
+		Return(nil)
 
 	ref, err := service.SendMessage("existing_user_1", "existing_user_2", "Hello, World!", "Bearer token")
 

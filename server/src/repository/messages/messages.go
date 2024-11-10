@@ -20,9 +20,9 @@ type RealTimeDatabase struct {
 }
 
 func NewRealTimeDatabase() RealTimeDatabaseInterface {
-	if err := BuildFirebaseConfig(); err != nil {
-		log.Fatalln("Error building firebase config:", err)
-	}
+	//if err := BuildFirebaseConfig(); err != nil {
+	//	log.Fatalln("Error building firebase config:", err)
+	//}
 
 	return &RealTimeDatabase{}
 }

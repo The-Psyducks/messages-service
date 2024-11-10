@@ -35,11 +35,15 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	var usersConn usersConnector.Interface
 	var devicesDB repositoryDevices.DevicesDatabaseInterface
 
+	if err := repositoryMessages.BuildFirebaseConfig(); err != nil {
+		log.Fatalln("Error building firebase config:", err)
+	}
+
 	switch config {
 	case MOCK_EXTERNAL:
+		log.Println("Database and connectors")
 		messagesDB = repositoryMessages.NewMockRealTimeDatabase()
 		usersConn = usersConnector.NewMockConnector()
-		log.Println("Mocking external connections")
 		devicesDB = repositoryDevices.NewMockDevicesDatabase()
 
 	default:

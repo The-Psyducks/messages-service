@@ -29,8 +29,8 @@ func (ns *NotificationService) SendNewMessageNotification(receiverId string, sen
 	}
 
 	data := map[string]string{
-		"senderId": senderId,
-		"deeplink": "twitSnap://messages_chat?refId=" + chatReference,
+		"deeplink": "twitSnap://messages_chat?userId=" + senderId + "?refId=" + chatReference,
+		//twitSnap://messages_chat?userId=123?refId=asdvas
 	}
 	if err := ns.fbConnector.SendNotificationToUserDevices(devicesTokens, "New message", content, data); err != nil {
 		return modelErrors.InternalServerError("error sending notification: " + err.Error())

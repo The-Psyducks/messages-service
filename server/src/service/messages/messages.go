@@ -57,7 +57,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	if err != nil {
 		return "", modelErrors.InternalServerError("error sending message: " + err.Error())
 	}
-	if err := ms.notificationsService.SendNewMessageNotification(receiverId, senderId, content, ""); err != nil {
+	if err := ms.notificationsService.SendNewMessageNotification(receiverId, senderId, content, ref); err != nil {
 		return "", err
 	}
 	return ref, nil
