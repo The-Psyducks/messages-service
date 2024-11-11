@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
-	"firebase.google.com/go/messaging"
 	"fmt"
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
@@ -164,62 +163,3 @@ func BuildFirebaseConfig() error {
 
 	return nil
 }
-
-/*
-	_   _  ____ _______ _____ ______ _____ _____       _______ _____ ____  _   _  _____
-
-| \ | |/ __ \__   __|_   _|  ____|_   _/ ____|   /\|__   __|_   _/ __ \| \ | |/ ____|
-|  \| | |  | | | |    | | | |__    | || |       /  \  | |    | || |  | |  \| | (___
-| . ` | |  | | | |    | | |  __|   | || |      / /\ \ | |    | || |  | | . ` |\___ \
-| |\  | |__| | | |   _| |_| |     _| || |____ / ____ \| |   _| || |__| | |\  |____) |
-|_| \_|\____/  |_|  |_____|_|    |_____\_____/_/    \_\_|  |_____\____/|_| \_|_____/
-*/
-func (db *RealTimeDatabase) sendNotification(token, title, body string) error {
-
-	ctx := context.Background()
-	conf := &firebase.Config{
-		DatabaseURL: "https://twitsnap-fab5c-default-rtdb.firebaseio.com/",
-	}
-
-	opt := option.WithCredentialsFile("twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json")
-
-	app, err := firebase.NewApp(ctx, conf, opt)
-	if err != nil {
-		log.Fatalln("Error initializing firebase app:", err)
-	}
-	client, err := app.Messaging(ctx)
-
-	if err != nil {
-		log.Fatalln("Error initializing messaging client:", err)
-	}
-
-	message := &messaging.Message{
-		Data: map[string]string{
-			"deeplink": "dale juancito mandame el deep",
-		},
-		Token: token,
-		Notification: &messaging.Notification{
-			Title: title,
-			Body:  body,
-		},
-	}
-	response, err := client.Send(ctx, message)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-
-	fmt.Println("firebase response", response)
-
-	return nil
-
-}
-
-//func (db *RealTimeDatabase) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
-//	for _, token := range devicesTokens {
-//		if err := db.sendNotification(token, title, body); err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
