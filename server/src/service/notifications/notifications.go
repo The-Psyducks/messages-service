@@ -54,7 +54,7 @@ func (ns *NotificationService) SendFollowerMilestoneNotification(userId string, 
 	}
 
 	data := map[string]string{
-		"deeplink": "twitSnap://messages_chat?refId=" + userId,
+		"deeplink": "twitSnap://profile_profile?userId=" + userId,
 	}
 
 	if err := ns.fbConnector.SendNotificationToUserDevices(
