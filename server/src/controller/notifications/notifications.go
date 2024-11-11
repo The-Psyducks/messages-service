@@ -60,5 +60,4 @@ func (nc *NotificationsController) SendFollowerMilestoneNotification(ctx *gin.Co
 	}
 
 	ctx.Status(204)
-	return
 }
