@@ -5,7 +5,60 @@ on:
     branches: [ "main", "dev" ]
   pull_request:
     branches: [ "main" ]
-    
-jobs:
-  go-pipeline:
-    uses: The-Psyducks/ci-template/.github/workflows/lint-test-coverage.yml@main
+    jobs:
+  lint-go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23.0
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest  
+      - name: Run go linting
+        run: |
+          cd server
+          golangci-lint run --timeout=5m ./... 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23.0
+          
+      - name: Build container
+        run: |
+          docker compose build
+      - name: Run test
+        run: |
+          SERVICE_ACCOUNT_AUTH_PROVIDER_CERT_URL=${{ secrets.SERVICE_ACCOUNT_AUTH_PROVIDER_CERT_URL }} \
+          SERVICE_ACCOUNT_AUTH_URI=${{ secrets.SERVICE_ACCOUNT_AUTH_URI }} \
+          SERVICE_ACCOUNT_CLIENT_CERT_URL=${{ secrets.SERVICE_ACCOUNT_CLIENT_CERT_URL }} \
+          SERVICE_ACCOUNT_CLIENT_EMAIL=${{ secrets.SERVICE_ACCOUNT_CLIENT_EMAIL }} \
+          SERVICE_ACCOUNT_CLIENT_ID=${{ secrets.SERVICE_ACCOUNT_CLIENT_ID }} \
+          SERVICE_ACCOUNT_PRIVATE_KEY=${{ secrets.SERVICE_ACCOUNT_PRIVATE_KEY }} \
+          SERVICE_ACCOUNT_PRIVATE_KEY_ID=${{ secrets.SERVICE_ACCOUNT_PRIVATE_KEY_ID }} \
+          SERVICE_ACCOUNT_PROJECT_ID=${{ secrets.SERVICE_ACCOUNT_PROJECT_ID }} \
+          SERVICE_ACCOUNT_TOKEN_URI=${{ secrets.SERVICE_ACCOUNT_TOKEN_URI }} \
+          SERVICE_ACCOUNT_TYPE=${{ secrets.SERVICE_ACCOUNT_TYPE }} \
+          SERVICE_ACCOUNT_UNIVERSE_DOMAIN=${{ secrets.SERVICE_ACCOUNT_UNIVERSE_DOMAIN }} \
+          docker compose up test
+      - name: check coverage
+        run: |
+          cd server
+          coverage=$(go tool cover -func=../coverage/coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          
+          if (( $(echo "$coverage < 60.0" | bc -l) )); then
+            echo "Test coverage is below 60%! Failing the job."
+            exit 1
+          fi
+          echo "coverage ${coverage}%"
+      
+      - name: Upload Coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: coverage/coverage.out
