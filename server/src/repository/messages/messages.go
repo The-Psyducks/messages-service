@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
 	"log"
+	"messages/src/model"
 	"os"
 	"strings"
 	"time"
@@ -93,6 +94,31 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 		log.Fatalln("Error initializing database client:", err)
 	}
 	return client, ctx
+}
+
+func (db *RealTimeDatabase) GetChats() (map[string]model.ChatResponse, error) {
+
+	client, ctx := db.createFirebaseDbClient()
+	uri := func() string {
+		env := os.Getenv("ENVIRONMENT")
+		if env == "HEROKU" {
+			return "prod/"
+		}
+		return "test/"
+	}()
+
+	ref := client.NewRef(uri)
+	var data map[string]model.ChatResponse
+	if err := ref.Get(ctx, &data); err != nil {
+		return nil, err
+	}
+
+	chats := make(map[string]model.ChatResponse, len(data))
+	for key := range data {
+		chats[key] = data[key]
+	}
+
+	return chats, nil
 }
 
 func (db *RealTimeDatabase) GetConversations() ([]string, error) {

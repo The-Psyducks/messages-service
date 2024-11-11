@@ -21,6 +21,11 @@ type MockMessageService struct {
 	mock.Mock
 }
 
+func (m *MockMessageService) GetChatWithUser(userId1 string, userId2 string, authHeader string) (*model.ChatResponse, *modelErrors.MessageError) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *MockMessageService) SendNotification(receiver, title, body string) *modelErrors.MessageError {
 	//TODO implement me
 	panic("implement me")
@@ -132,6 +137,11 @@ func TestSendMessage_ServiceError(t *testing.T) {
 
 type RealTimeDatabaseMock struct {
 	mock.Mock
+}
+
+func (r *RealTimeDatabaseMock) GetChats() (map[string]model.ChatResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 //func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {

@@ -74,6 +74,7 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	{
 		private.GET("/messages", messagesController.GetMessages)
 		private.POST("/messages", messagesController.SendMessage)
+		private.GET("/messages/:userId", messagesController.GetChatWithUser)
 		private.POST("/device", notificationsController.PostDevice)
 		private.POST("/notification/followers-milestone", notificationsController.SendFollowerMilestoneNotification)
 

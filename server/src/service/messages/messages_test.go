@@ -4,6 +4,7 @@ import (
 	goErrors "errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"messages/src/model"
 	modelErrors "messages/src/model/errors"
 	"testing"
 )
@@ -11,6 +12,11 @@ import (
 // Mock for RealTimeDatabaseInterface
 type MockDatabase struct {
 	mock.Mock
+}
+
+func (m *MockDatabase) GetChats() (map[string]model.ChatResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string, error) {

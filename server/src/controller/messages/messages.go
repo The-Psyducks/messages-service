@@ -73,3 +73,22 @@ func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {
 	data := model.MessageDeliveredResponse{ChatReference: ref}
 	ctx.JSON(http.StatusOK, data)
 }
+
+func (mc *MessageController) GetChatWithUser(context *gin.Context) {
+
+	userId1 := context.Param("userId")
+	userId2 := context.GetString("session_user_id")
+	authHeader := context.GetHeader("Authorization")
+
+	chat, err := mc.MessageService.GetChatWithUser(userId1, userId2, authHeader)
+	if err != nil {
+		modelErrors.SendErrorMessage(context, err)
+		return
+	}
+
+	if chat == nil {
+		context.JSON(http.StatusNoContent, gin.H{})
+	}
+
+	context.JSON(http.StatusOK, chat)
+}
