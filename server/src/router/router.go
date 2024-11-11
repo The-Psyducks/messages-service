@@ -34,6 +34,7 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 	var messagesDB repositoryMessages.RealTimeDatabaseInterface
 	var usersConn usersConnector.Interface
 	var devicesDB repositoryDevices.DevicesDatabaseInterface
+	var fbConnector firebaseConnector.Interface
 
 	if err := repositoryMessages.BuildFirebaseConfig(); err != nil {
 		log.Fatalln("Error building firebase config:", err)
@@ -45,6 +46,7 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 		messagesDB = repositoryMessages.NewMockRealTimeDatabase()
 		usersConn = usersConnector.NewMockConnector()
 		devicesDB = repositoryDevices.NewMockDevicesDatabase()
+		fbConnector = firebaseConnector.NewMockFirebaseConnector()
 
 	default:
 		messagesDB = repositoryMessages.NewRealTimeDatabase()
@@ -58,9 +60,9 @@ func NewRouter(config ConfigurationType) (*gin.Engine, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error preparing notifications database: %v", err)
 		}
+		fbConnector = firebaseConnector.NewFirebaseConnector()
 	}
 
-	fbConnector := firebaseConnector.NewFirebaseConnector()
 	notificationService := serviceNotifications.NewNotificationService(devicesDB, usersConn, fbConnector)
 	notificationsController := controllerNotifications.NewNotificationsController(usersConn, devicesDB, notificationService)
 

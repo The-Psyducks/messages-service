@@ -1,17 +1,6 @@
 package integration
 
-//import (
-//	"bytes"
-//	"encoding/json"
-//	"github.com/gin-gonic/gin"
-//	"messages/src/auth"
-//	"messages/src/router"
-//	"net/http"
-//	"net/http/httptest"
-//	"testing"
-//)
-//
-//func AddDeviceTokenForUser(t *testing.T) {
+//func TestAddDeviceTokenForUser(t *testing.T) {
 //	// Set up the mock configuration
 //	gin.SetMode(gin.TestMode)
 //
@@ -38,7 +27,6 @@ package integration
 //		t.Fatalf("could not marshal JSON: %v", err)
 //	}
 //
-//
 //	req, _ := http.NewRequest(http.MethodPost, "/device", bytes.NewBuffer(jsonPayload))
 //	req.Header.Set("Content-Type", "application/json")
 //	req.Header.Set("Authorization", "Bearer "+token)
@@ -48,7 +36,6 @@ package integration
 //
 //	// Perform the request
 //	r.ServeHTTP(w, req)
-//
 //
 //	if w.Code != http.StatusOK {
 //		t.Errorf("expected status code 200, got %d", w.Code)
