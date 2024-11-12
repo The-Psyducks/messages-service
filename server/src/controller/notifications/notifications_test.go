@@ -16,6 +16,11 @@ type mockConnector struct {
 	mock.Mock
 }
 
+func (m *mockConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *mockConnector) CheckUserExists(userId, deviceToken string) (bool, error) {
 	args := m.Called(userId, deviceToken)
 	return args.Bool(0), args.Error(1)

@@ -167,6 +167,11 @@ type UsersConnectorMock struct {
 	mock.Mock
 }
 
+func (u *UsersConnectorMock) GetUserNameAndImage(id string, header string) (string, string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (u *UsersConnectorMock) CheckUserExists(id string, header string) (bool, error) {
 	//TODO implement me
 	panic("implement me")

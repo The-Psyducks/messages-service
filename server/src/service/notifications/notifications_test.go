@@ -28,6 +28,11 @@ type MockUsersConnector struct {
 	mock.Mock
 }
 
+func (m *MockUsersConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *MockUsersConnector) CheckUserExists(userID, authHeader string) (bool, error) {
 	args := m.Called(userID, authHeader)
 	return args.Bool(0), args.Error(1)
