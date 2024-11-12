@@ -7,13 +7,10 @@ import (
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
 	"fmt"
-	"github.com/google/uuid"
 	"google.golang.org/api/option"
 	"log"
-	"messages/src/model"
 	"os"
 	"strings"
-	"time"
 )
 
 type RealTimeDatabase struct {
@@ -27,6 +24,14 @@ func NewRealTimeDatabase() RealTimeDatabaseInterface {
 	return &RealTimeDatabase{}
 }
 
+type Message struct {
+	Id        string `json:"id"`
+	From      string `json:"from"`
+	To        string `json:"to"`
+	Content   string `json:"content"`
+	Timestamp string `json:"timestamp"`
+}
+
 func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, content string) (string, error) {
 	client, ctx := db.createFirebaseDbClient()
 
@@ -37,13 +42,7 @@ func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, cont
 	// }
 	// fmt.Println("data retrieved: ", data)
 
-	msg := map[string]string{
-		"id":        uuid.New().String(),
-		"from":      senderId,
-		"to":        receiverId,
-		"content":   content,
-		"timestamp": time.Now().Format("2006-01-02 15:04:05"),
-	}
+	msg := map[string]Message{}
 
 	if _, err := resourceRef.Push(ctx, msg); err != nil {
 		return "", err
@@ -96,40 +95,34 @@ func (db *RealTimeDatabase) createFirebaseDbClient() (*db.Client, context.Contex
 	return client, ctx
 }
 
-func (db *RealTimeDatabase) GetChats() (map[string]model.ChatResponse, error) {
+func (db *RealTimeDatabase) GetChats(conversationId string) (*map[string]Message, error) {
 
 	client, ctx := db.createFirebaseDbClient()
-	uri := func() string {
-		env := os.Getenv("ENVIRONMENT")
-		if env == "HEROKU" {
-			return "prod/"
-		}
-		return "test/"
-	}()
+	uri := getUri() + conversationId
 
 	ref := client.NewRef(uri)
-	var data map[string]model.ChatResponse
-	if err := ref.Get(ctx, &data); err != nil {
+	log.Println("Getting chat reference from uri: ", uri)
+	chats := new(map[string]Message)
+	if err := ref.Get(ctx, &chats); err != nil {
 		return nil, err
 	}
 
-	chats := make(map[string]model.ChatResponse, len(data))
-	for key := range data {
-		chats[key] = data[key]
-	}
-
 	return chats, nil
+
+}
+
+func getUri() string {
+	env := os.Getenv("ENVIRONMENT")
+	if env == "HEROKU" {
+		return "prod/"
+	}
+	return "test/"
+
 }
 
 func (db *RealTimeDatabase) GetConversations() ([]string, error) {
 	client, ctx := db.createFirebaseDbClient()
-	uri := func() string {
-		env := os.Getenv("ENVIRONMENT")
-		if env == "HEROKU" {
-			return "prod/"
-		}
-		return "test/"
-	}()
+	uri := getUri()
 
 	ref := client.NewRef(uri)
 	var data map[string]interface{}

@@ -4,8 +4,8 @@ import (
 	goErrors "errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"messages/src/model"
 	modelErrors "messages/src/model/errors"
+	"messages/src/repository/messages"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ type MockDatabase struct {
 	mock.Mock
 }
 
-func (m *MockDatabase) GetChats() (map[string]model.ChatResponse, error) {
+func (m *MockDatabase) GetChats(string) (*map[string]repository.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }

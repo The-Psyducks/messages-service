@@ -2,13 +2,12 @@ package repository
 
 import (
 	"errors"
-	"messages/src/model"
 )
 
 type MockRealTimeDatabase struct {
 }
 
-func (m *MockRealTimeDatabase) GetChats() (map[string]model.ChatResponse, error) {
+func (m *MockRealTimeDatabase) GetChats(string) (*map[string]Message, error) {
 	//TODO implement me
 	panic("implement me")
 }

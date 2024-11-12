@@ -2,6 +2,7 @@
 package users_connector
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -9,9 +10,51 @@ import (
 	"os"
 )
 
-type UsersConnector struct{}
+type profile struct {
+	Username  string `json:"username"`
+	ImagePath string `json:"picture_path"`
+}
 
-func NewUsersConnector() *UsersConnector {
+type UsersConnector struct {
+}
+
+type profileUserResponse struct {
+	Profile *profile `json:"profile"`
+}
+
+func (uc *UsersConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
+	if os.Getenv("MOCK_USERS_SERVICE") == "true" {
+		return "", "", nil
+	}
+	url := "http://" + os.Getenv("USERS_HOST") + "/users/" + id
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", "", errors.New("error creating request:" + err.Error())
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", header)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", "", errors.New("error against user service:" + err.Error())
+	}
+	// bind response to struct
+
+	var response profileUserResponse
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return "", "", err
+
+	}
+	if response.Profile == nil {
+		return "", "", errors.New("error getting user profile. user not found")
+	}
+
+	return response.Profile.Username, response.Profile.ImagePath, nil
+}
+
+func NewUsersConnector() Interface {
 	return &UsersConnector{}
 }
 

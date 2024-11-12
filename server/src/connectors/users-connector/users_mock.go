@@ -8,6 +8,11 @@ type MockConnector struct {
 	// Add fields as needed to simulate behavior
 }
 
+func (m *MockConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewMockConnector() Interface {
 	return &MockConnector{}
 }

@@ -7,6 +7,7 @@ import (
 	"messages/src/auth"
 	"messages/src/model"
 	"messages/src/model/errors"
+	"messages/src/repository/messages"
 	service "messages/src/service/messages"
 	"net/http"
 	"net/http/httptest"
@@ -139,7 +140,7 @@ type RealTimeDatabaseMock struct {
 	mock.Mock
 }
 
-func (r *RealTimeDatabaseMock) GetChats() (map[string]model.ChatResponse, error) {
+func (r *RealTimeDatabaseMock) GetChats(string) (*map[string]repository.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -30,11 +30,58 @@ func (ms *MessageService) GetChatWithUser(userId1 string, userId2 string, authHe
 		return nil, modelErrors.ValidationError("user does not exists")
 	}
 
-	conversations, err := ms.rtDb.GetChats()
+	userMessages, modelErr := ms.GetMessages(userId1)
+	if modelErr != nil {
+		return nil, modelErr
+	}
+	conversation := filterConversations(userId2, userMessages)
+	if len(conversation) == 0 {
+		return nil, nil
+	}
+
+	if len(conversation) > 1 {
+		return nil, modelErrors.InternalServerError("error getting chat: more than one conversation found")
+	}
+
+	chats, err := ms.rtDb.GetChats(conversation[0])
 	if err != nil {
 		return nil, modelErrors.InternalServerError("error getting chats: " + err.Error())
 	}
-	return getConversationsBetween(userId1, userId2, conversations), nil
+
+	if len(*chats) == 0 {
+		return nil, nil
+	}
+
+	return ms.newChat(chats, authHeader)
+
+}
+
+func (ms *MessageService) newChat(chats *map[string]messagesRepository.Message, authHeader string) (*model.ChatResponse, *modelErrors.MessageError) {
+	latestChatId := ""
+	for chatId, chat := range *chats {
+		if latestChatId == "" || (*chats)[latestChatId].Timestamp < chat.Timestamp {
+			latestChatId = chatId
+		}
+	}
+	userId := (*chats)[latestChatId].From
+	userName, userImage, err := ms.getUserNameAndImage(userId, authHeader)
+	if err != nil {
+		return nil, modelErrors.ExternalServiceError("error getting user image and name: " + err.Error())
+	}
+
+	return &model.ChatResponse{
+		ChatReference: latestChatId,
+		UserName:      userName,
+		UserImage:     userImage,
+		LastMessage:   (*chats)[latestChatId].Content,
+		Date:          (*chats)[latestChatId].Timestamp,
+		ToId:          (*chats)[latestChatId].To,
+	}, nil
+
+}
+
+func (ms *MessageService) getUserNameAndImage(id string, authHeader string) (string, string, error) {
+	return ms.users.GetUserNameAndImage(id, authHeader)
 
 }
 

@@ -14,5 +14,5 @@ type ChatResponse struct {
 	UserImage     string `json:"user-image"`
 	LastMessage   string `json:"last-message"`
 	Date          string `json:"date"`
-	toId          string `json:"to-id"`
+	ToId          string `json:"to-id"`
 }
