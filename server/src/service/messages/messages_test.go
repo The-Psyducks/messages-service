@@ -4,8 +4,9 @@ import (
 	goErrors "errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"messages/src/model"
 	modelErrors "messages/src/model/errors"
-	"messages/src/repository/messages"
+	repositoryMessages "messages/src/repository/messages"
 	"testing"
 )
 
@@ -14,9 +15,9 @@ type MockDatabase struct {
 	mock.Mock
 }
 
-func (m *MockDatabase) GetChats(string) (*map[string]repository.Message, error) {
-	//TODO implement me
-	panic("implement me")
+func (m *MockDatabase) GetChats(p1 string) (*map[string]repositoryMessages.Message, error) {
+	args := m.Called(p1)
+	return args.Get(0).(*map[string]repositoryMessages.Message), args.Error(1)
 }
 
 func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string, error) {
@@ -25,7 +26,9 @@ func (m *MockDatabase) SendMessage(senderId, receiverId, content string) (string
 }
 
 func (m *MockDatabase) GetConversations() ([]string, error) {
-	return []string{"1234-5678", "1234-1111", "9999-9999"}, nil
+	args := m.Called()
+	return args.Get(0).([]string), args.Error(1)
+
 }
 
 // Mock for ConnectorInterface
@@ -34,8 +37,8 @@ type MockUserConnector struct {
 }
 
 func (m *MockUserConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
-	//TODO implement me
-	panic("implement me")
+	args := m.Called(id, header)
+	return args.String(0), args.String(1), args.Error(2)
 }
 
 func (m *MockUserConnector) CheckUserExists(userID, authHeader string) (bool, error) {
@@ -194,7 +197,7 @@ func TestGetMessagesHappyPath(t *testing.T) {
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
 	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
-	//mockDB.On("GetConversations", "1234").Return([]string{"1234-5678", "1234-1111", "9999-9999"}, nil)
+	mockDB.On("GetConversations").Return([]string{"1234-5678", "1234-1111", "9999-9999"}, nil)
 
 	//act
 	resources, err := service.GetMessages("1234")
@@ -205,4 +208,165 @@ func TestGetMessagesHappyPath(t *testing.T) {
 
 	assert.Equal(t, []string{"1234-5678", "1234-1111"}, resources)
 
+}
+
+func TestGetChatHappyPath(t *testing.T) {
+	//arrange
+	messages := map[string]repositoryMessages.Message{
+		"mockNewestRef": {
+			To:        "userId2",
+			From:      "userId1",
+			Id:        "mockMessageId",
+			Content:   "mockContent",
+			Timestamp: "2",
+		},
+		"mockOlderRef": {
+			To:        "userId1",
+			From:      "userId2",
+			Id:        "mockMessageId",
+			Content:   "mockContent",
+			Timestamp: "1",
+		},
+	}
+
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	mockDB.On("GetConversations").Return([]string{"dm-userId1-userId2", "dm-userId1-userId3"}, nil)
+	mockDB.On("GetChats", "dm-userId1-userId2").Return(&messages, nil)
+
+	mockUserConnector.On("GetUserNameAndImage", "userId1", "authHeader").Return("userName", "userImage", nil)
+
+	//act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+	//assert
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+
+	assert.Equal(t, &model.ChatResponse{
+		ChatReference: "mockNewestRef",
+		UserName:      "userName",
+		UserImage:     "userImage",
+		LastMessage:   "mockContent",
+		Date:          "2",
+		ToId:          "userId2",
+	}, resources)
+
+}
+
+func TestGetChat_UserDoesNotExist(t *testing.T) {
+	//arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(false, nil)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	//act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+	//assert
+	assert.Nil(t, resources)
+	assert.NotNil(t, err)
+	assert.Equal(t, "user does not exists", err.Detail)
+}
+
+func TestGetChat_ConnectorFails(t *testing.T) {
+	//arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(false, modelErrors.ExternalServiceError("external service error"))
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	//act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+	//assert
+	assert.Nil(t, resources)
+	assert.NotNil(t, err)
+	assert.Equal(t, "error validating user: external service error", err.Detail)
+}
+
+func TestGetChat_GetConversationsFails(t *testing.T) {
+	//arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	mockDB.On("GetConversations").Return([]string{}, goErrors.New("database error"))
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	//act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+	//assert
+	assert.Nil(t, resources)
+	assert.NotNil(t, err)
+	assert.Equal(t, "error getting conversations: database error", err.Detail)
+}
+
+func TestGetChat_GetChatsFails(t *testing.T) {
+	messages := map[string]repositoryMessages.Message{
+		"mockNewestRef": {
+			To:        "userId2",
+			From:      "userId1",
+			Id:        "mockMessageId",
+			Content:   "mockContent",
+			Timestamp: "2",
+		},
+		"mockOlderRef": {
+			To:        "userId1",
+			From:      "userId2",
+			Id:        "mockMessageId",
+			Content:   "mockContent",
+			Timestamp: "1",
+		},
+	}
+	//arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	mockDB.On("GetConversations").Return([]string{"dm-userId1-userId2"}, nil)
+	mockDB.On("GetChats", "dm-userId1-userId2").Return(&messages, goErrors.New("database error"))
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	//act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+	//assert
+	assert.Nil(t, resources)
+	assert.NotNil(t, err)
+	assert.Equal(t, "error getting chats: database error", err.Detail)
+}
+
+func TestGetChat_GetUserNameAndImageFails(t *testing.T) {
+	//arrange
+	messages := map[string]repositoryMessages.Message{
+		"mockNewestRef": {
+			To:        "userId2",
+			From:      "userId1",
+			Id:        "mockMessageId",
+			Content:   "mockContent",
+			Timestamp: "2",
+		},
+	}
+
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	mockDB.On("GetConversations").Return([]string{"dm-userId1-userId2"}, nil)
+	mockDB.On("GetChats", "dm-userId1-userId2").Return(&messages, nil)
+	mockUserConnector.On("GetUserNameAndImage", "userId1", "authHeader").Return("", "", modelErrors.ExternalServiceError("external service error"))
+
+	//act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+	//assert
+	assert.Nil(t, resources)
+	assert.NotNil(t, err)
+	assert.Equal(t, "error getting user image and name: external service error", err.Detail)
 }

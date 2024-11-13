@@ -7,8 +7,31 @@ import (
 type MockRealTimeDatabase struct {
 }
 
-func (m *MockRealTimeDatabase) GetChats(string) (*map[string]Message, error) {
-	//TODO implement me
+func (m *MockRealTimeDatabase) GetChats(behaviour string) (*map[string]Message, error) {
+	//switch behaviour {
+	//case "ok":
+	//	return &map[string]Message{
+	//		"mockNewestRef": Message{
+	//			To:        "mockReceiverId",
+	//			From:      "mockSenderId",
+	//			Id:        "mockMessageId",
+	//			Content:   "mockContent",
+	//			Timestamp: "2",
+	//		},
+	//		"mockOlderRef": Message{
+	//			To:        "mockReceiverId",
+	//			From:      "mockSenderId",
+	//			Id:        "mockMessageId",
+	//			Content:   "mockContent",
+	//			Timestamp: "1",
+	//		},
+	//	}, nil
+	//case "error":
+	//	return nil, errors.New("throwing error in mock")
+	//default:
+	//	panic("behaviour should be ok or error but it was: " + behaviour)
+	//}
+
 	panic("implement me")
 }
 
