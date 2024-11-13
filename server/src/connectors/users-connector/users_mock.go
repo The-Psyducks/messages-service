@@ -1,16 +1,12 @@
 package users_connector
 
-import (
-	"errors"
-)
-
 type MockConnector struct {
 	// Add fields as needed to simulate behavior
 }
 
 func (m *MockConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
 	//TODO implement me
-	panic("implement me")
+	return "some username", "some image", nil
 }
 
 func NewMockConnector() Interface {
@@ -24,8 +20,8 @@ func (m *MockConnector) CheckUserExists(userId, authHeader string) (bool, error)
 		return false, nil
 	case "userId":
 		return true, nil
-	case "errorUserId":
-		return true, errors.New("throwing error in mock")
+	//case "errorUserId":
+	//	return true, errors.New("throwing error in mock")
 	default:
 		panic("id should be on of the following: fakeUserId, userId, errorUserId but it was: " + userId)
 	}

@@ -370,3 +370,59 @@ func TestGetChat_GetUserNameAndImageFails(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "error getting user image and name: external service error", err.Detail)
 }
+
+func TestGetChat_NoMessagesReturned(t *testing.T) {
+	// arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	mockDB.On("GetConversations").Return([]string{"dm-userId1-userId2"}, nil)
+	mockDB.On("GetChats", "dm-userId1-userId2").Return(&map[string]repositoryMessages.Message{}, nil)
+
+	// act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+
+	// assert
+	assert.Nil(t, resources)
+	assert.Nil(t, err)
+}
+
+func TestGetChat_InternalErrorMultipleConversations(t *testing.T) {
+	// arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	mockDB.On("GetConversations").Return([]string{"dm-userId1-userId2", "dm-userId1-userId2"}, nil)
+
+	// act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+
+	// assert
+	assert.Nil(t, resources)
+	assert.NotNil(t, err)
+	assert.Equal(t, "error getting chat: more than one conversation found", err.Detail)
+}
+
+func TestGetChat_NoConversationsExist(t *testing.T) {
+	// arrange
+	mockDB := new(MockDatabase)
+	mockUserConnector := new(MockUserConnector)
+	dDbMock := new(MockDevicesDatabase)
+	mockUserConnector.On("CheckUserExists", "userId2", "authHeader").Return(true, nil)
+	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
+
+	mockDB.On("GetConversations").Return([]string{}, nil)
+
+	// act
+	resources, err := service.GetChatWithUser("userId1", "userId2", "authHeader")
+
+	// assert
+	assert.Nil(t, resources)
+	assert.Nil(t, err)
+}
