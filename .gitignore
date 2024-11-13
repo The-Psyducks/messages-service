@@ -26,7 +26,8 @@ go.work.sum
 
 # firebase
 
-server/twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json
+*/twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json
+/server/tests/integration/twitsnap-fab5c-firebase-adminsdk-3qxha-c88972e6e9.json
 
 
 # Jetbrain files

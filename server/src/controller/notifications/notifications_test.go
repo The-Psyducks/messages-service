@@ -5,7 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
 	"messages/src/auth"
-	usersConnector "messages/src/user-connector"
+	users_connector "messages/src/connectors/users-connector"
+	notificationServices "messages/src/service/notifications"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,12 +16,17 @@ type mockConnector struct {
 	mock.Mock
 }
 
+func (m *mockConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *mockConnector) CheckUserExists(userId, deviceToken string) (bool, error) {
 	args := m.Called(userId, deviceToken)
 	return args.Bool(0), args.Error(1)
 }
 
-var _ usersConnector.ConnectorInterface = (*mockConnector)(nil)
+var _ users_connector.Interface = (*mockConnector)(nil)
 
 type mockDatabase struct {
 	mock.Mock
@@ -36,10 +42,20 @@ func (m *mockDatabase) AddDevice(id string, token string) error {
 	return nil
 }
 
+type mockFirebaseConnector struct {
+	mock.Mock
+}
+
+func (m *mockFirebaseConnector) SendNotificationToUserDevices(devicesTokens []string, title, body string, data map[string]string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func TestAddDeviceForUser(t *testing.T) {
 	//arrange
 	usersConnectorMock := new(mockConnector)
 	devicesDatabaseMock := new(mockDatabase)
+	firebaseConnectorMock := new(mockFirebaseConnector)
 	token, _ := auth.GenerateToken("userId", "username", false)
 	bearerToken := "Bearer " + token
 	usersConnectorMock.On("CheckUserExists", "userId", bearerToken).Return(true, nil)
@@ -56,7 +72,9 @@ func TestAddDeviceForUser(t *testing.T) {
 	ctx.Set("session_user_id", "userId")
 	ctx.Set("tokenString", token)
 
-	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock)
+	ns := notificationServices.NewNotificationService(devicesDatabaseMock, usersConnectorMock, firebaseConnectorMock)
+
+	nc := NewNotificationsController(usersConnectorMock, devicesDatabaseMock, ns)
 
 	//act
 	nc.PostDevice(ctx)

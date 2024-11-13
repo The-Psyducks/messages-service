@@ -1,4 +1,4 @@
-package controller
+package messages
 
 import (
 	"bytes"
@@ -7,7 +7,8 @@ import (
 	"messages/src/auth"
 	"messages/src/model"
 	"messages/src/model/errors"
-	"messages/src/service"
+	"messages/src/repository/messages"
+	service "messages/src/service/messages"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,20 +22,25 @@ type MockMessageService struct {
 	mock.Mock
 }
 
-func (m *MockMessageService) SendNotification(receiver, title, body string) *errors.MessageError {
+func (m *MockMessageService) GetChatWithUser(userId1 string, userId2 string, authHeader string) (*model.ChatResponse, *modelErrors.MessageError) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m *MockMessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *errors.MessageError) {
+func (m *MockMessageService) SendNotification(receiver, title, body string) *modelErrors.MessageError {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockMessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *modelErrors.MessageError) {
 	args := m.Called(senderId, receiverId, content, authHeader)
 	if err := args.Get(0); err != nil {
-		return "", err.(*errors.MessageError)
+		return "", err.(*modelErrors.MessageError)
 	}
 	return "", nil
 }
 
-func (m *MockMessageService) GetMessages(id string) ([]string, *errors.MessageError) {
+func (m *MockMessageService) GetMessages(id string) ([]string, *modelErrors.MessageError) {
 	panic("implement me")
 }
 
@@ -113,7 +119,7 @@ func TestSendMessage_ServiceError(t *testing.T) {
 	controller := NewMessageController(mockService)
 
 	reqBody := model.MessageRequest{ReceiverId: "456", Content: "Hello"}
-	expectedErr := errors.BadRequestError("Service error") // Simulate an error returned by the service
+	expectedErr := modelErrors.BadRequestError("Service error") // Simulate an error returned by the service
 	mockService.On("SendMessage", "123", "456", "Hello", bearerToken).Return(expectedErr)
 
 	// Prepare the request
@@ -134,18 +140,23 @@ type RealTimeDatabaseMock struct {
 	mock.Mock
 }
 
-func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+func (r *RealTimeDatabaseMock) GetChats(string) (*map[string]repository.Message, error) {
 	//TODO implement me
 	panic("implement me")
 }
+
+//func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
+//	//TODO implement me
+//	panic("implement me")
+//}
 
 func (r *RealTimeDatabaseMock) SendMessage(senderId string, receiverId string, content string) (string, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (r *RealTimeDatabaseMock) GetConversations(id string) ([]string, error) {
-	args := r.Called(id)
+func (r *RealTimeDatabaseMock) GetConversations() ([]string, error) {
+	args := r.Called()
 	if err := args.Get(1); err != nil {
 		return nil, err.(error)
 	}
@@ -154,6 +165,11 @@ func (r *RealTimeDatabaseMock) GetConversations(id string) ([]string, error) {
 
 type UsersConnectorMock struct {
 	mock.Mock
+}
+
+func (u *UsersConnectorMock) GetUserNameAndImage(id string, header string) (string, string, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (u *UsersConnectorMock) CheckUserExists(id string, header string) (bool, error) {
@@ -190,14 +206,14 @@ func TestGetMessages(t *testing.T) {
 	realTimeDatabaseMock := new(RealTimeDatabaseMock)
 	usersConnectorMock := new(UsersConnectorMock)
 	dDbMock := new(MockDevicesDatabase)
-	messageService := service.NewMessageService(realTimeDatabaseMock, dDbMock, usersConnectorMock)
+	messageService := service.NewMessageService(realTimeDatabaseMock, dDbMock, usersConnectorMock, nil)
 	mc := NewMessageController(messageService)
 
 	ctx.Request = httptest.NewRequest(http.MethodGet, "/messages", nil)
 	ctx.Request.Header.Set("Authorization", bearerToken)
 	ctx.Request.Header.Set("Content-Type", "application/json")
 
-	realTimeDatabaseMock.On("GetConversations", "1234").Return([]string{"1234-4321", "1111-1234", "1111-1231"}, nil)
+	realTimeDatabaseMock.On("GetConversations").Return([]string{"1234-4321", "1111-1234", "1111-1231"}, nil)
 	//act
 	mc.GetMessages(ctx)
 
