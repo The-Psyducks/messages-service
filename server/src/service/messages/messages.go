@@ -85,15 +85,6 @@ func (ms *MessageService) getUserNameAndImage(id string, authHeader string) (str
 
 }
 
-func getConversationsBetween(id1 string, id2 string, chats map[string]model.ChatResponse) *model.ChatResponse {
-	for chatId, chat := range chats {
-		if strings.Contains(chatId, id1) && strings.Contains(chatId, id2) {
-			return &chat
-		}
-	}
-	return nil
-}
-
 func NewMessageService(
 	rtDb messagesRepository.RealTimeDatabaseInterface,
 	dDb repository.DevicesDatabaseInterface,
