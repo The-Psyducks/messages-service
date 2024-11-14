@@ -35,7 +35,7 @@ func (ms *MessageService) GetChatWithUser(userId1 string, userId2 string, authHe
 		return nil, modelErr
 	}
 	conversation := filterConversations(userId2, userMessages)
-	log.Println("conversation: ", conversation)
+	
 	if len(conversation) == 0 {
 		return nil, nil
 	}
