@@ -35,6 +35,7 @@ func (ms *MessageService) GetChatWithUser(userId1 string, userId2 string, authHe
 		return nil, modelErr
 	}
 	conversation := filterConversations(userId2, userMessages)
+	
 	if len(conversation) == 0 {
 		return nil, nil
 	}
@@ -52,11 +53,11 @@ func (ms *MessageService) GetChatWithUser(userId1 string, userId2 string, authHe
 		return nil, nil
 	}
 
-	return ms.newChat(chats, authHeader)
+	return ms.newChat(chats, authHeader, conversation[0])
 
 }
 
-func (ms *MessageService) newChat(chats *map[string]messagesRepository.Message, authHeader string) (*model.ChatResponse, *modelErrors.MessageError) {
+func (ms *MessageService) newChat(chats *map[string]messagesRepository.Message, authHeader string, conversationReference string) (*model.ChatResponse, *modelErrors.MessageError) {
 	latestChatId := ""
 	for chatId, chat := range *chats {
 		if latestChatId == "" || (*chats)[latestChatId].Timestamp < chat.Timestamp {
@@ -70,7 +71,7 @@ func (ms *MessageService) newChat(chats *map[string]messagesRepository.Message, 
 	}
 
 	return &model.ChatResponse{
-		ChatReference: latestChatId,
+		ChatReference: conversationReference,
 		UserName:      userName,
 		UserImage:     userImage,
 		LastMessage:   (*chats)[latestChatId].Content,

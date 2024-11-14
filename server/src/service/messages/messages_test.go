@@ -248,7 +248,7 @@ func TestGetChatHappyPath(t *testing.T) {
 	}
 
 	assert.Equal(t, &model.ChatResponse{
-		ChatReference: "mockNewestRef",
+		ChatReference: "dm-userId1-userId2",
 		UserName:      "userName",
 		UserImage:     "userImage",
 		LastMessage:   "mockContent",
