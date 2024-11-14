@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type RealTimeDatabase struct {
@@ -42,7 +43,13 @@ func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, cont
 	// }
 	// fmt.Println("data retrieved: ", data)
 
-	msg := Message{}
+	msg := Message{
+		Id:        "",
+		From:      senderId,
+		To:        receiverId,
+		Content:   content,
+		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
+	}
 
 	if _, err := resourceRef.Push(ctx, msg); err != nil {
 		return "", err
