@@ -42,7 +42,7 @@ func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, cont
 	// }
 	// fmt.Println("data retrieved: ", data)
 
-	msg := map[string]Message{}
+	msg := Message{}
 
 	if _, err := resourceRef.Push(ctx, msg); err != nil {
 		return "", err
