@@ -118,7 +118,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 		return "", modelErrors.ExternalServiceError("error validating user: " + err.Error())
 	}
 	if !receiverExists {
-		log.Printf("receiver does not exist:" + receiverId)
+		log.Printf("Receiver does not exist: " + receiverId)
 		return "", modelErrors.ValidationError("receiver does not exist")
 	}
 
