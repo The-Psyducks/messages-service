@@ -35,7 +35,7 @@ func (ms *MessageService) GetChatWithUser(userId1 string, userId2 string, authHe
 		return nil, modelErr
 	}
 	conversation := filterConversations(userId2, userMessages)
-	
+
 	if len(conversation) == 0 {
 		return nil, nil
 	}
@@ -108,6 +108,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 	}
 
 	if !senderExists {
+
 		return "", modelErrors.ValidationError("sender does not exist")
 	}
 
@@ -117,6 +118,7 @@ func (ms *MessageService) SendMessage(senderId string, receiverId string, conten
 		return "", modelErrors.ExternalServiceError("error validating user: " + err.Error())
 	}
 	if !receiverExists {
+		log.Printf("receiver does not exist:" + receiverId)
 		return "", modelErrors.ValidationError("receiver does not exist")
 	}
 
