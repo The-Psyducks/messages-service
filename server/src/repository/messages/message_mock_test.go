@@ -27,7 +27,9 @@ func TestMockRealTimeDatabase_GetChats(t *testing.T) {
 
 	t.Run("GetChats_Panic", func(t *testing.T) {
 		assert.Panics(t, func() {
-			mockDB.GetChats("ok")
+			if _, err := mockDB.GetChats("ok"); err != nil {
+				panic("error")
+			}
 		})
 	})
 }
@@ -37,7 +39,9 @@ func TestMockRealTimeDatabase_GetConversations(t *testing.T) {
 
 	t.Run("GetConversations_Panic", func(t *testing.T) {
 		assert.Panics(t, func() {
-			mockDB.GetConversations()
+			if _, err := mockDB.GetConversations(); err != nil {
+				panic("error")
+			}
 		})
 	})
 }
