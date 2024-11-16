@@ -13,6 +13,42 @@ type NotificationService struct {
 	fbConnector    firebaseConnector.Interface
 }
 
+func (ns *NotificationService) SendMentionNotification(userId string, taggerId string, postId string, authHeader string) *modelErrors.MessageError {
+	userExists, err := ns.usersConnector.CheckUserExists(userId, authHeader)
+	if err != nil {
+		return modelErrors.ExternalServiceError("error checking user existence: " + err.Error())
+	}
+	if !userExists {
+		return modelErrors.ValidationError("receiver does not exist")
+	}
+
+	followerExists, err := ns.usersConnector.CheckUserExists(userId, authHeader)
+	if err != nil {
+		return modelErrors.ExternalServiceError("error checking user existence: " + err.Error())
+	}
+	if !followerExists {
+		return modelErrors.ValidationError("receiver does not exist")
+	}
+
+	devicesTokens, err := ns.devicesDB.GetDevicesTokens(userId)
+	if err != nil {
+		return modelErrors.InternalServerError("error getting devices tokens: " + err.Error())
+	}
+
+	data := map[string]string{
+		"deeplink": "twitSnap://profile_profile?userId=" + taggerId,
+	}
+
+	if err := ns.fbConnector.SendNotificationToUserDevices(
+		devicesTokens,
+		"Yay! You got mentioned",
+		"Someone mentioned you in a post! (๑˃̵ᴗ˂̵)و",
+		data); err != nil {
+		return modelErrors.InternalServerError("error sending notification: " + err.Error())
+	}
+	return nil
+}
+
 func NewNotificationService(devicesDB repository.DevicesDatabaseInterface, usersConnector usersConnector.Interface, fbConnector firebaseConnector.Interface) NotificationsServiceInterface {
 	return &NotificationService{
 		devicesDB:      devicesDB,

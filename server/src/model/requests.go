@@ -25,10 +25,5 @@ type UserFollowerMilestoneNotificationRequest struct {
 type MentionNotificationRequest struct {
 	UserId   string `json:"user_id"`
 	TaggerId string `json:"tagger_id"`
+	PostId   string `json:"post_id"`
 }
-
-//// TrendingTwitNotificationRequest POST "notifications/trending-twit"
-//type TrendingTwitNotificationRequest struct {
-//	UserID string `json:"user_id"`
-//	TwitId string `json:"twit_id"`
-//}

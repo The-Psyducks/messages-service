@@ -61,3 +61,16 @@ func (nc *NotificationsController) SendFollowerMilestoneNotification(ctx *gin.Co
 
 	ctx.Status(204)
 }
+
+func (nc *NotificationsController) SendMentionNotification(ctx *gin.Context) {
+	var notificationRequest model.MentionNotificationRequest
+	if err := ctx.BindJSON(&notificationRequest); err != nil {
+		modelErrors.SendErrorMessage(ctx, modelErrors.BadRequestError("Error Binding Request: "+err.Error()))
+		return
+	}
+	tokenString := ctx.GetString("tokenString")
+	authHeader := "Bearer " + tokenString
+	if err := nc.NotificationsService.SendMentionNotification(notificationRequest.UserId, notificationRequest.TaggerId, notificationRequest.PostId, authHeader); err != nil {
+		modelErrors.SendErrorMessage(ctx, err)
+	}
+}
