@@ -38,29 +38,18 @@ func (db *RealTimeDatabase) SendMessage(senderId string, receiverId string, cont
 
 	resourceRef := db.createMessageRef(senderId, receiverId, client)
 
-	// if err := ref.Get(ctx, &data); err != nil {
-	// 	log.Fatalln("Error reading from database:", err)
-	// }
-	// fmt.Println("data retrieved: ", data)
-
 	msg := Message{
 		Id:        "",
 		From:      senderId,
 		To:        receiverId,
 		Content:   content,
-		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
+		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	if _, err := resourceRef.Push(ctx, msg); err != nil {
 		return "", err
 	}
 
-	/*var data map[string]interface{}
-	if err := resourceRef.Get(ctx, &data); err != nil {
-		log.Fatalln("Error reading from database:", err)
-	}
-
-	log.Println("data retrieved after inserting into db: ", data)*/
 	return resourceRef.Path, nil
 
 }

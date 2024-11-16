@@ -55,18 +55,18 @@ func (mc *MessageController) GetMessages(ctx *gin.Context) {
 
 	claims, _ := auth.ValidateToken(token)
 	userId := claims.UserId
-	conversationReferences, err := mc.MessageService.GetMessages(userId)
+	chats, err := mc.MessageService.GetMessages(userId, bearerToken)
 	if err != nil {
 		modelErrors.SendErrorMessage(ctx, err)
 		return
 	}
 
-	sendGetMessagesResponse(ctx, conversationReferences)
+	sendGetMessagesResponse(ctx, chats)
 }
 
-func sendGetMessagesResponse(ctx *gin.Context, references []string) {
-	data := model.GetMessagesResponse{ChatReferences: references}
-	ctx.JSON(http.StatusOK, data)
+func sendGetMessagesResponse(ctx *gin.Context, references []*model.ChatResponse) {
+	//data := model.GetMessagesResponse{ChatReferences: references}
+	ctx.JSON(http.StatusOK, references)
 }
 
 func sendMessageDeliveredResponse(ctx *gin.Context, ref string) {

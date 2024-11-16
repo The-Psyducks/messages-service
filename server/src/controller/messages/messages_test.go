@@ -6,7 +6,7 @@ import (
 	"log"
 	"messages/src/auth"
 	"messages/src/model"
-	"messages/src/model/errors"
+	modelErrors "messages/src/model/errors"
 	"messages/src/repository/messages"
 	service "messages/src/service/messages"
 	"net/http"
@@ -40,7 +40,7 @@ func (m *MockMessageService) SendMessage(senderId string, receiverId string, con
 	return "", nil
 }
 
-func (m *MockMessageService) GetMessages(id string) ([]string, *modelErrors.MessageError) {
+func (m *MockMessageService) GetMessages(id string, authHeader string) ([]*model.ChatResponse, *modelErrors.MessageError) {
 	panic("implement me")
 }
 
@@ -140,9 +140,9 @@ type RealTimeDatabaseMock struct {
 	mock.Mock
 }
 
-func (r *RealTimeDatabaseMock) GetChats(string) (*map[string]repository.Message, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *RealTimeDatabaseMock) GetChats(p1 string) (*map[string]repository.Message, error) {
+	args := r.Called(p1)
+	return args.Get(0).(*map[string]repository.Message), args.Error(1)
 }
 
 //func (r *RealTimeDatabaseMock) SendNotificationToUserDevices(devicesTokens []string, title, body string) error {
@@ -168,8 +168,8 @@ type UsersConnectorMock struct {
 }
 
 func (u *UsersConnectorMock) GetUserNameAndImage(id string, header string) (string, string, error) {
-	//TODO implement me
-	panic("implement me")
+	args := u.Called(id, header)
+	return args.String(0), args.String(1), args.Error(2)
 }
 
 func (u *UsersConnectorMock) CheckUserExists(id string, header string) (bool, error) {
@@ -209,19 +209,57 @@ func TestGetMessages(t *testing.T) {
 	messageService := service.NewMessageService(realTimeDatabaseMock, dDbMock, usersConnectorMock, nil)
 	mc := NewMessageController(messageService)
 
+	messages := map[string]repository.Message{
+		"1234-4321": {Content: "Hola don pepito", From: "1234", To: "4321", Timestamp: "1"},
+		"4321-1234": {Content: "Hola don jose", From: "4321", To: "1234", Timestamp: "2"},
+	}
+
+	messages2 := map[string]repository.Message{
+		"1234-1111": {Content: "a", From: "1234", To: "1111", Timestamp: "1"},
+		"1111-1234": {Content: "b", From: "1111", To: "1234", Timestamp: "2"},
+	}
+
+	realTimeDatabaseMock.On("GetChats", "1234-4321").Return(&messages, nil)
+	realTimeDatabaseMock.On("GetChats", "1111-1234").Return(&messages2, nil)
+	realTimeDatabaseMock.On("GetConversations").Return([]string{"1234-4321", "1111-1234", "1111-1231"}, nil)
+
+	usersConnectorMock.On("GetUserNameAndImage", "1234", bearerToken).
+		Return("mockUserName1234", "mockUserImage1234", nil)
+	usersConnectorMock.On("GetUserNameAndImage", "4321", bearerToken).
+		Return("mockUserName4321", "mockUserImage4321", nil)
+	usersConnectorMock.On("GetUserNameAndImage", "1111", bearerToken).
+		Return("mockUserName1111", "mockUserImage1111", nil)
+
 	ctx.Request = httptest.NewRequest(http.MethodGet, "/messages", nil)
 	ctx.Request.Header.Set("Authorization", bearerToken)
 	ctx.Request.Header.Set("Content-Type", "application/json")
 
-	realTimeDatabaseMock.On("GetConversations").Return([]string{"1234-4321", "1111-1234", "1111-1231"}, nil)
 	//act
 	mc.GetMessages(ctx)
 
 	//assert
-	var response model.GetMessagesResponse
+	var response []model.ChatResponse
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, []string{"1234-4321", "1111-1234"}, response.ChatReferences)
+	expectedResult := []model.ChatResponse{
+		{
+			ChatReference: "1234-4321",
+			UserName:      "mockUserName4321",
+			UserImage:     "mockUserImage4321",
+			LastMessage:   "Hola don jose",
+			Date:          "2",
+			ToId:          "1234",
+		},
+		{
+			ChatReference: "1111-1234",
+			UserName:      "mockUserName1111",
+			UserImage:     "mockUserImage1111",
+			LastMessage:   "b",
+			Date:          "2",
+			ToId:          "1234",
+		},
+	}
+	assert.Equal(t, expectedResult, response)
 
 }
