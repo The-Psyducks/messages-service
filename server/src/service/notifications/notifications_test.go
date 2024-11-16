@@ -248,3 +248,35 @@ func TestSendMilestoneNotification_SendNotificationError(t *testing.T) {
 	mockDevicesDB.AssertExpectations(t)
 	mockFirebaseConnector.AssertExpectations(t)
 }
+
+func TestSendMentionNotificationHasTheRightSideEffects(t *testing.T) {
+	mockDevicesDB := new(MockDevicesDatabase)
+	mockUsersConnector := new(MockUsersConnector)
+	mockFirebaseConnector := new(MockFirebaseConnector)
+	notificationsService := NewNotificationService(mockDevicesDB, mockUsersConnector, mockFirebaseConnector)
+
+	mockDevicesDB.On(
+		"GetDevicesTokens",
+		"userId",
+	).Return([]string{"token1", "token2"}, nil)
+
+	mockUsersConnector.On(
+		"CheckUserExists",
+		"userId",
+		"Bearer token",
+	).Return(true, nil)
+
+	mockFirebaseConnector.On(
+		"SendNotificationToUserDevices",
+		[]string{"token1", "token2"},
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+		map[string]string{"deeplink": "twitSnap://profile_profile?userId=" + "followerId"},
+	).Return(nil)
+
+	err := notificationsService.SendMentionNotification("userId", "followerId", "postId", "Bearer token")
+	assert.Nil(t, err)
+	mockUsersConnector.AssertExpectations(t)
+	mockDevicesDB.AssertExpectations(t)
+	mockFirebaseConnector.AssertExpectations(t)
+}
