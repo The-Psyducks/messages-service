@@ -38,13 +38,20 @@ func (ns *NotificationService) SendNewMessageNotification(receiverId string, sen
 	return nil
 }
 
-func (ns *NotificationService) SendFollowerMilestoneNotification(userId string, followers string, authHeader string) *modelErrors.MessageError {
-	receiverExists, err := ns.usersConnector.CheckUserExists(userId, authHeader)
+func (ns *NotificationService) SendFollowerMilestoneNotification(userId, followerId, authHeader string) *modelErrors.MessageError {
+	userExists, err := ns.usersConnector.CheckUserExists(userId, authHeader)
 	if err != nil {
 		return modelErrors.ExternalServiceError("error checking user existence: " + err.Error())
 	}
+	if !userExists {
+		return modelErrors.ValidationError("receiver does not exist")
+	}
 
-	if !receiverExists {
+	followerExists, err := ns.usersConnector.CheckUserExists(userId, authHeader)
+	if err != nil {
+		return modelErrors.ExternalServiceError("error checking user existence: " + err.Error())
+	}
+	if !followerExists {
 		return modelErrors.ValidationError("receiver does not exist")
 	}
 
@@ -54,13 +61,13 @@ func (ns *NotificationService) SendFollowerMilestoneNotification(userId string, 
 	}
 
 	data := map[string]string{
-		"deeplink": "twitSnap://profile_profile?userId=" + userId,
+		"deeplink": "twitSnap://profile_profile?userId=" + followerId,
 	}
 
 	if err := ns.fbConnector.SendNotificationToUserDevices(
 		devicesTokens,
-		"New milestone!!",
-		"You just reached "+followers+" followers!! (˶ᵔ ᵕ ᵔ˶) ",
+		"New follower!!",
+		"You got yourself a new follower (˶ᵔ ᵕ ᵔ˶) ",
 		data); err != nil {
 		return modelErrors.InternalServerError("error sending notification: " + err.Error())
 	}

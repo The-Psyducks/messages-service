@@ -55,7 +55,7 @@ func (nc *NotificationsController) SendFollowerMilestoneNotification(ctx *gin.Co
 	}
 	tokenString := ctx.GetString("tokenString")
 	authHeader := "Bearer " + tokenString
-	if err := nc.NotificationsService.SendFollowerMilestoneNotification(notificationRequest.UserId, notificationRequest.Followers, authHeader); err != nil {
+	if err := nc.NotificationsService.SendFollowerMilestoneNotification(notificationRequest.UserId, notificationRequest.FollowerId, authHeader); err != nil {
 		modelErrors.SendErrorMessage(ctx, err)
 	}
 

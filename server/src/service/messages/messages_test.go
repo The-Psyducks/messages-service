@@ -69,7 +69,7 @@ func (m *MockNotificationsService) SendNewMessageNotification(receiverId, sender
 	return nil
 }
 
-func (m *MockNotificationsService) SendFollowerMilestoneNotification(userId, followers, authHeader string) *modelErrors.MessageError {
+func (m *MockNotificationsService) SendFollowerMilestoneNotification(userId, follower_id, authHeader string) *modelErrors.MessageError {
 	//TODO implement me
 	panic("implement me")
 }

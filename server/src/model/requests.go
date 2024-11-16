@@ -17,8 +17,8 @@ type NotificationRequest struct {
 
 // UserFollowerMilestoneNotificationRequest POST "notifications/user-milestone"
 type UserFollowerMilestoneNotificationRequest struct {
-	UserId    string `json:"user_id"`
-	Followers string `json:"followers"`
+	UserId     string `json:"user_id"`
+	FollowerId string `json:"follower_id"`
 }
 
 // MentionNotificationRequest POST "notifications/mention"
