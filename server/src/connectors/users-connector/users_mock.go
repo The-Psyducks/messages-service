@@ -7,7 +7,7 @@ type MockConnector struct {
 }
 
 func (m *MockConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
-	return "some username", "some image", nil
+	return "someusername", "someimage", nil
 }
 
 func NewMockConnector() Interface {
