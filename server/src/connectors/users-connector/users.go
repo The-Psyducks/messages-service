@@ -59,6 +59,7 @@ func NewUsersConnector() Interface {
 }
 
 func (uc *UsersConnector) CheckUserExists(id string, header string) (bool, error) {
+	log.Printf("Checking user exists")
 	if os.Getenv("MOCK_USERS_SERVICE") == "true" {
 		return true, nil
 	}
@@ -75,7 +76,7 @@ func (uc *UsersConnector) CheckUserExists(id string, header string) (bool, error
 	if err != nil {
 		return false, errors.New("error against user service:" + err.Error())
 	}
-
+	log.Println("user service response: ", resp.StatusCode)
 	switch resp.StatusCode {
 	case http.StatusOK:
 		return true, nil

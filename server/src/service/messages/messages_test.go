@@ -197,16 +197,58 @@ func TestGetMessagesHappyPath(t *testing.T) {
 	mockUserConnector := new(MockUserConnector)
 	dDbMock := new(MockDevicesDatabase)
 	service := NewMessageService(mockDB, dDbMock, mockUserConnector, nil)
-	mockDB.On("GetConversations").Return([]string{"1234-5678", "1234-1111", "9999-9999"}, nil)
+
+	mockDB.On("GetConversations").Return([]string{"1234-5678", "1111-1234", "9999-9999"}, nil)
+
+	messages := map[string]repositoryMessages.Message{
+		"1234-5678": {Content: "Hola don pepito", From: "1234", To: "5678", Timestamp: "1"},
+		"5678-1234": {Content: "Hola don jose", From: "5678", To: "1234", Timestamp: "2"},
+	}
+
+	messages2 := map[string]repositoryMessages.Message{
+		"1234-1111": {Content: "a", From: "1234", To: "1111", Timestamp: "1"},
+		"1111-1234": {Content: "b", From: "1111", To: "1234", Timestamp: "2"},
+	}
+
+	_ = map[string]repositoryMessages.Message{
+		"9999-9999": {Content: "a", From: "9999", To: "9999", Timestamp: "1"},
+	}
+
+	mockDB.On("GetChats", "1234-5678").Return(&messages, nil)
+	mockDB.On("GetChats", "1111-1234").Return(&messages2, nil)
+
+	mockUserConnector.On("GetUserNameAndImage", "1234").
+		Return("mockUserName1234", "mockUserImage1234", nil)
+	mockUserConnector.On("GetUserNameAndImage", "5678", "").
+		Return("mockUserName5678", "mockUserImage5678", nil)
+	mockUserConnector.On("GetUserNameAndImage", "1111", "").
+		Return("mockUserName1111", "mockUserImage1111", nil)
 
 	//act
-	resources, err := service.GetMessages("1234")
+	resources, err := service.GetMessages("1234", "")
 	//assert
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-
-	assert.Equal(t, []string{"1234-5678", "1234-1111"}, resources)
+	expectedResult := []*model.ChatResponse{
+		{
+			ChatReference: "1234-5678",
+			UserName:      "mockUserName5678",
+			UserImage:     "mockUserImage5678",
+			LastMessage:   "Hola don jose",
+			Date:          "2",
+			ToId:          "1234",
+		},
+		{
+			ChatReference: "1111-1234",
+			UserName:      "mockUserName1111",
+			UserImage:     "mockUserImage1111",
+			LastMessage:   "b",
+			Date:          "2",
+			ToId:          "1234",
+		},
+	}
+	assert.Equal(t, expectedResult, resources)
 
 }
 
