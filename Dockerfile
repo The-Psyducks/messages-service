@@ -15,7 +15,7 @@ RUN go build -o service ./main.go
 # Test stage
 FROM builder AS test-stage
 
-CMD ["sh", "-c", "go test -cover -coverprofile=coverage/coverage.out $(go list ./... | grep -v 'src/repository' | grep -v 'src/user-connector')"]
+CMD ["sh", "-c", "go test -cover -coverprofile=coverage/coverage.out $(go list ./...)"]
 
 
 # Run stage
