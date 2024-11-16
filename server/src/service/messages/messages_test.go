@@ -64,12 +64,17 @@ type MockNotificationsService struct {
 	mock.Mock
 }
 
+func (m *MockNotificationsService) SendMentionNotification(userId string, taggerId string, postId string, authHeader string) *modelErrors.MessageError {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *MockNotificationsService) SendNewMessageNotification(receiverId, senderId, content, chatReference string) *modelErrors.MessageError {
 	_ = m.Called(receiverId, senderId, content, chatReference)
 	return nil
 }
 
-func (m *MockNotificationsService) SendFollowerMilestoneNotification(userId, followers, authHeader string) *modelErrors.MessageError {
+func (m *MockNotificationsService) SendFollowerMilestoneNotification(userId, follower_id, authHeader string) *modelErrors.MessageError {
 	//TODO implement me
 	panic("implement me")
 }

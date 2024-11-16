@@ -23,9 +23,7 @@ type profileUserResponse struct {
 }
 
 func (uc *UsersConnector) GetUserNameAndImage(id string, header string) (string, string, error) {
-	if os.Getenv("MOCK_USERS_SERVICE") == "true" {
-		return "", "", nil
-	}
+
 	url := "http://" + os.Getenv("USERS_HOST") + "/users/" + id
 
 	req, err := http.NewRequest("GET", url, nil)
