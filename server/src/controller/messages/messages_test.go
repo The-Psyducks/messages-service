@@ -249,7 +249,7 @@ func TestGetMessages(t *testing.T) {
 			UserImage:     "mockUserImage4321",
 			LastMessage:   "Hola don jose",
 			Date:          "2",
-			ToId:          "1234",
+			ToId:          "4321",
 		},
 		{
 			ChatReference: "1111-1234",
@@ -257,7 +257,7 @@ func TestGetMessages(t *testing.T) {
 			UserImage:     "mockUserImage1111",
 			LastMessage:   "b",
 			Date:          "2",
-			ToId:          "1234",
+			ToId:          "1111",
 		},
 	}
 	assert.Equal(t, expectedResult, response)

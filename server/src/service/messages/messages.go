@@ -19,6 +19,20 @@ type MessageService struct {
 	notificationsService serviceNotifications.NotificationsServiceInterface
 }
 
+func NewMessageService(
+	rtDb messagesRepository.RealTimeDatabaseInterface,
+	dDb repository.DevicesDatabaseInterface,
+	users usersConnector.Interface,
+	notificationsService serviceNotifications.NotificationsServiceInterface,
+) MessageServiceInterface {
+	return &MessageService{
+		rtDb,
+		dDb,
+		users,
+		notificationsService,
+	}
+}
+
 func (ms *MessageService) GetChatWithUser(userId1 string, userId2 string, authHeader string) (*model.ChatResponse, *modelErrors.MessageError) {
 	userExists, err := ms.users.CheckUserExists(userId2, authHeader)
 	if err != nil {
@@ -77,7 +91,7 @@ func (ms *MessageService) newChat(chats *map[string]messagesRepository.Message, 
 		UserImage:     userImage,
 		LastMessage:   (*chats)[latestChatId].Content,
 		Date:          (*chats)[latestChatId].Timestamp,
-		ToId:          (*chats)[latestChatId].To,
+		ToId:          userId,
 	}, nil
 
 }
@@ -85,20 +99,6 @@ func (ms *MessageService) newChat(chats *map[string]messagesRepository.Message, 
 func (ms *MessageService) getUserNameAndImage(id string, authHeader string) (string, string, error) {
 	return ms.users.GetUserNameAndImage(id, authHeader)
 
-}
-
-func NewMessageService(
-	rtDb messagesRepository.RealTimeDatabaseInterface,
-	dDb repository.DevicesDatabaseInterface,
-	users usersConnector.Interface,
-	notificationsService serviceNotifications.NotificationsServiceInterface,
-) MessageServiceInterface {
-	return &MessageService{
-		rtDb,
-		dDb,
-		users,
-		notificationsService,
-	}
 }
 
 func (ms *MessageService) SendMessage(senderId string, receiverId string, content string, authHeader string) (string, *modelErrors.MessageError) {

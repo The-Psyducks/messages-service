@@ -271,7 +271,7 @@ func TestSendMentionNotificationHasTheRightSideEffects(t *testing.T) {
 		[]string{"token1", "token2"},
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		map[string]string{"deeplink": "twitSnap://profile_profile?userId=" + "followerId"},
+		map[string]string{"deeplink": "twitSnap://home_twitSnap?twitSnapId=" + "postId"},
 	).Return(nil)
 
 	err := notificationsService.SendMentionNotification("userId", "followerId", "postId", "Bearer token")
