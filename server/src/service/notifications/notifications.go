@@ -36,7 +36,7 @@ func (ns *NotificationService) SendMentionNotification(userId string, taggerId s
 	}
 
 	data := map[string]string{
-		"deeplink": "twitSnap://profile_profile?userId=" + taggerId,
+		"deeplink": "twitSnap://home_twitSnap?twitSnapId=" + postId,
 	}
 
 	if err := ns.fbConnector.SendNotificationToUserDevices(
