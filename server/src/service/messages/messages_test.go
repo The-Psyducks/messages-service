@@ -242,7 +242,7 @@ func TestGetMessagesHappyPath(t *testing.T) {
 			UserImage:     "mockUserImage5678",
 			LastMessage:   "Hola don jose",
 			Date:          "2",
-			ToId:          "1234",
+			ToId:          "5678",
 		},
 		{
 			ChatReference: "1111-1234",
@@ -250,7 +250,7 @@ func TestGetMessagesHappyPath(t *testing.T) {
 			UserImage:     "mockUserImage1111",
 			LastMessage:   "b",
 			Date:          "2",
-			ToId:          "1234",
+			ToId:          "1111",
 		},
 	}
 	assert.Equal(t, expectedResult, resources)
@@ -300,7 +300,7 @@ func TestGetChatHappyPath(t *testing.T) {
 		UserImage:     "userImage",
 		LastMessage:   "mockContent",
 		Date:          "2",
-		ToId:          "userId2",
+		ToId:          "userId1",
 	}, resources)
 
 }
